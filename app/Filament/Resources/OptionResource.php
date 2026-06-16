@@ -16,7 +16,7 @@ class OptionResource extends Resource
     protected static ?string $model = Option::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-plus-circle';
-    protected static ?string $navigationGroup = 'Parc';
+    protected static ?string $navigationGroup = 'Catalogue';
     protected static ?string $navigationLabel = 'Options & extras';
     protected static ?string $modelLabel = 'option';
     protected static ?string $pluralModelLabel = 'Options';

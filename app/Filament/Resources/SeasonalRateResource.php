@@ -15,7 +15,7 @@ class SeasonalRateResource extends Resource
     protected static ?string $model = SeasonalRate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-    protected static ?string $navigationGroup = 'Tarifs';
+    protected static ?string $navigationGroup = 'Tarification';
     protected static ?string $navigationLabel = 'Tarifs saisonniers';
     protected static ?string $modelLabel = 'tarif saisonnier';
     protected static ?string $pluralModelLabel = 'Tarifs saisonniers';

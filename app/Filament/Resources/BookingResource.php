@@ -22,7 +22,7 @@ class BookingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationGroup = 'Réservations';
-    protected static ?string $navigationLabel = 'Réservations';
+    protected static ?string $navigationLabel = 'Mes Réservations';
     protected static ?string $modelLabel = 'réservation';
     protected static ?string $pluralModelLabel = 'Réservations';
     protected static ?int $navigationSort = 1;

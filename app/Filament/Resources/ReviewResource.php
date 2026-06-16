@@ -16,7 +16,7 @@ class ReviewResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-star';
     protected static ?string $navigationGroup = 'Clients';
-    protected static ?string $navigationLabel = 'Avis';
+    protected static ?string $navigationLabel = 'Mes avis';
     protected static ?string $modelLabel = 'avis';
     protected static ?string $pluralModelLabel = 'Avis';
     protected static ?int $navigationSort = 2;

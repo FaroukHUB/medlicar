@@ -15,7 +15,7 @@ class MaintenanceResource extends Resource
     protected static ?string $model = Maintenance::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
-    protected static ?string $navigationGroup = 'Parc';
+    protected static ?string $navigationGroup = 'Catalogue';
     protected static ?string $navigationLabel = 'Entretien';
     protected static ?string $modelLabel = 'entretien';
     protected static ?string $pluralModelLabel = 'Entretien';
