@@ -1,0 +1,332 @@
+[26-Feb-2026 09:01:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_120000_create_page_visits_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_120000_create_page_visits_table.php on line 7
+[26-Feb-2026 09:05:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_22_115802_create_push_subscriptions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_22_115802_create_push_subscriptions_table.php on line 7
+[26-Feb-2026 09:35:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_102211_create_client_support_conversations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_102211_create_client_support_conversations_table.php on line 7
+[26-Feb-2026 09:38:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110500_create_click_events_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110500_create_click_events_table.php on line 7
+[26-Feb-2026 09:39:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_142725_create_popups_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_142725_create_popups_table.php on line 7
+[26-Feb-2026 09:42:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000009_create_availabilities_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000009_create_availabilities_table.php on line 7
+[26-Feb-2026 10:03:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_125727_add_confirmation_token_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_125727_add_confirmation_token_to_bookings_table.php on line 7
+[26-Feb-2026 10:06:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000007_create_reviews_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000007_create_reviews_table.php on line 7
+[26-Feb-2026 10:07:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000001_create_loueurs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000001_create_loueurs_table.php on line 7
+[26-Feb-2026 10:13:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000007_create_pricing_rules_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000007_create_pricing_rules_table.php on line 7
+[26-Feb-2026 11:05:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_23_094410_create_blog_posts_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_23_094410_create_blog_posts_table.php on line 7
+[26-Feb-2026 11:07:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_113936_add_times_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_113936_add_times_to_bookings_table.php on line 7
+[26-Feb-2026 11:17:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000004_add_loueur_to_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000004_add_loueur_to_vehicles_table.php on line 7
+[26-Feb-2026 11:27:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000006_create_transactions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000006_create_transactions_table.php on line 7
+[26-Feb-2026 11:42:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_110755_create_hero_slides_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_110755_create_hero_slides_table.php on line 7
+[26-Feb-2026 12:33:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100003_create_delivery_rates_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100003_create_delivery_rates_table.php on line 7
+[26-Feb-2026 13:43:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000001_create_cache_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000001_create_cache_table.php on line 7
+[26-Feb-2026 13:44:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000000_create_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000000_create_users_table.php on line 7
+[26-Feb-2026 19:47:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000003_create_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000003_create_vehicles_table.php on line 7
+[26-Feb-2026 19:47:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000005_create_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000005_create_bookings_table.php on line 7
+[26-Feb-2026 21:02:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000002_create_jobs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000002_create_jobs_table.php on line 7
+[27-Feb-2026 00:07:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_172056_add_trial_and_commission_fields_to_loueurs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_172056_add_trial_and_commission_fields_to_loueurs_table.php on line 7
+[27-Feb-2026 01:15:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000003_create_delivery_zones_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000003_create_delivery_zones_table.php on line 7
+[27-Feb-2026 01:17:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000008_create_settings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000008_create_settings_table.php on line 7
+[27-Feb-2026 01:19:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110000_enhance_page_visits_tracking.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110000_enhance_page_visits_tracking.php on line 7
+[27-Feb-2026 01:40:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000006_create_time_slots_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000006_create_time_slots_table.php on line 7
+[27-Feb-2026 01:43:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100004_create_delivery_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100004_create_delivery_bookings_table.php on line 7
+[27-Feb-2026 01:43:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_170009_create_transfer_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_170009_create_transfer_bookings_table.php on line 7
+[27-Feb-2026 03:03:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_105727_make_vehicle_boosts_dates_nullable.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_105727_make_vehicle_boosts_dates_nullable.php on line 7
+[27-Feb-2026 03:13:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_091251_create_loueur_wilaya_table.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_091251_create_loueur_wilaya_table.php on line 8
+[27-Feb-2026 04:18:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000002_create_loueur_settings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000002_create_loueur_settings_table.php on line 7
+[27-Feb-2026 04:19:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000002_create_categories_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000002_create_categories_table.php on line 7
+[27-Feb-2026 08:52:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_100000_add_clim_and_offers_to_vehicles.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_100000_add_clim_and_offers_to_vehicles.php on line 7
+[27-Feb-2026 13:32:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_104708_add_degressive_pricing_to_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_104708_add_degressive_pricing_to_vehicles_table.php on line 7
+[28-Feb-2026 01:12:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000004_create_options_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000004_create_options_table.php on line 7
+[28-Feb-2026 01:13:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000001_create_brands_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000001_create_brands_table.php on line 7
+[28-Feb-2026 01:56:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000008_add_role_to_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000008_add_role_to_users_table.php on line 7
+[28-Feb-2026 07:22:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100002_create_transfer_routes_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100002_create_transfer_routes_table.php on line 7
+[28-Feb-2026 07:31:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_120000_create_conversations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_120000_create_conversations_table.php on line 7
+[28-Feb-2026 07:32:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000005_create_reservations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000005_create_reservations_table.php on line 7
+[28-Feb-2026 23:36:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_141324_add_client_service_fee_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_141324_add_client_service_fee_to_bookings_table.php on line 7
+[02-Mar-2026 05:28:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100005_enable_transfer_for_existing_loueurs.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100005_enable_transfer_for_existing_loueurs.php on line 6
+[02-Mar-2026 13:12:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_172056_add_trial_and_commission_fields_to_loueurs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_172056_add_trial_and_commission_fields_to_loueurs_table.php on line 7
+[02-Mar-2026 13:12:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000000_create_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000000_create_users_table.php on line 7
+[02-Mar-2026 13:12:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000001_create_cache_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000001_create_cache_table.php on line 7
+[02-Mar-2026 13:13:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110500_create_click_events_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110500_create_click_events_table.php on line 7
+[02-Mar-2026 13:14:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_142725_create_popups_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_142725_create_popups_table.php on line 7
+[02-Mar-2026 13:15:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100005_enable_transfer_for_existing_loueurs.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100005_enable_transfer_for_existing_loueurs.php on line 6
+[02-Mar-2026 13:16:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_113936_add_times_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_18_113936_add_times_to_bookings_table.php on line 7
+[02-Mar-2026 13:18:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_23_094410_create_blog_posts_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_23_094410_create_blog_posts_table.php on line 7
+[02-Mar-2026 13:19:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_105727_make_vehicle_boosts_dates_nullable.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_105727_make_vehicle_boosts_dates_nullable.php on line 7
+[02-Mar-2026 13:20:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_135157_add_price_eur_to_options_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_135157_add_price_eur_to_options_table.php on line 7
+[02-Mar-2026 13:21:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_101317_create_booking_conversations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_101317_create_booking_conversations_table.php on line 7
+[02-Mar-2026 13:22:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_170009_create_transfer_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_170009_create_transfer_bookings_table.php on line 7
+[02-Mar-2026 13:23:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100004_create_delivery_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100004_create_delivery_bookings_table.php on line 7
+[02-Mar-2026 13:24:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000005_create_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000005_create_bookings_table.php on line 7
+[02-Mar-2026 13:25:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000003_create_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000003_create_vehicles_table.php on line 7
+[02-Mar-2026 13:26:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_110755_create_hero_slides_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_110755_create_hero_slides_table.php on line 7
+[02-Mar-2026 13:27:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000002_create_jobs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/0001_01_01_000002_create_jobs_table.php on line 7
+[02-Mar-2026 13:28:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_100000_add_clim_and_offers_to_vehicles.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_19_100000_add_clim_and_offers_to_vehicles.php on line 7
+[02-Mar-2026 13:29:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_091251_create_loueur_wilaya_table.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_091251_create_loueur_wilaya_table.php on line 8
+[02-Mar-2026 13:30:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000002_create_loueur_settings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000002_create_loueur_settings_table.php on line 7
+[02-Mar-2026 13:31:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000002_create_categories_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000002_create_categories_table.php on line 7
+[02-Mar-2026 13:32:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_100001_add_luggage_count_to_transfer_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_100001_add_luggage_count_to_transfer_bookings_table.php on line 7
+[02-Mar-2026 13:33:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000008_add_role_to_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000008_add_role_to_users_table.php on line 7
+[02-Mar-2026 15:23:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_141324_add_client_service_fee_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_141324_add_client_service_fee_to_bookings_table.php on line 7
+[02-Mar-2026 15:24:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_133620_add_deposit_amount_eur_to_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_133620_add_deposit_amount_eur_to_vehicles_table.php on line 7
+[02-Mar-2026 16:38:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110000_enhance_page_visits_tracking.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_110000_enhance_page_visits_tracking.php on line 7
+[02-Mar-2026 17:46:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000003_create_delivery_zones_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000003_create_delivery_zones_table.php on line 7
+[02-Mar-2026 18:56:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_102211_create_client_support_conversations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_24_102211_create_client_support_conversations_table.php on line 7
+[02-Mar-2026 22:22:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000004_add_loueur_to_vehicles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000004_add_loueur_to_vehicles_table.php on line 7
+[03-Mar-2026 05:51:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100001_add_account_type_and_services_to_loueurs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100001_add_account_type_and_services_to_loueurs_table.php on line 7
+[03-Mar-2026 07:46:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_120000_create_conversations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_21_120000_create_conversations_table.php on line 7
+[03-Mar-2026 07:46:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000005_create_reservations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000005_create_reservations_table.php on line 7
+[03-Mar-2026 08:39:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000001_create_brands_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000001_create_brands_table.php on line 7
+[03-Mar-2026 08:40:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000004_create_options_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000004_create_options_table.php on line 7
+[03-Mar-2026 08:46:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000007_create_pricing_rules_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_01_000007_create_pricing_rules_table.php on line 7
+[03-Mar-2026 08:47:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000007_create_reviews_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000007_create_reviews_table.php on line 7
+[03-Mar-2026 08:52:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000001_create_loueurs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2024_01_02_000001_create_loueurs_table.php on line 7
+[03-Mar-2026 10:04:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_133819_add_eur_amounts_to_bookings_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_27_133819_add_eur_amounts_to_bookings_table.php on line 7
+[03-Mar-2026 11:50:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100003_create_delivery_rates_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100003_create_delivery_rates_table.php on line 7
+[03-Mar-2026 15:24:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100002_create_transfer_routes_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_25_100002_create_transfer_routes_table.php on line 7
+[03-Mar-2026 18:37:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_144649_create_marketing_tables.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/database/migrations/2026_02_20_144649_create_marketing_tables.php on line 7
