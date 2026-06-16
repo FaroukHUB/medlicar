@@ -38,6 +38,14 @@ class BookingResource extends Resource
         'dispute' => 'Litige',
     ];
 
+    public const FUEL_LEVELS = [
+        '0' => 'Vide',
+        '25' => '1/4',
+        '50' => '1/2',
+        '75' => '3/4',
+        '100' => 'Plein',
+    ];
+
     /** Recalcule jours, prix de base, options, total et acompte. */
     public static function recalculate(Get $get, Set $set): void
     {
@@ -146,6 +154,27 @@ class BookingResource extends Resource
                 Forms\Components\Select::make('deposit_status')->label('Statut caution')
                     ->options(['pending' => 'En attente', 'held' => 'Bloquée', 'returned' => 'Restituée', 'partial' => 'Partielle', 'kept' => 'Conservée'])->default('pending'),
             ]),
+
+            Forms\Components\Section::make('État des lieux')
+                ->description('Constat au départ et au retour du véhicule')
+                ->columns(2)->collapsed()->schema([
+                    Forms\Components\Fieldset::make('Départ')->columns(1)->schema([
+                        Forms\Components\TextInput::make('mileage_start')->label('Kilométrage')->numeric()->suffix('km'),
+                        Forms\Components\Select::make('fuel_level_start')->label('Niveau carburant')
+                            ->options(self::FUEL_LEVELS),
+                        Forms\Components\FileUpload::make('photos_before')->label('Photos départ')
+                            ->image()->multiple()->directory('inspections')->reorderable(),
+                        Forms\Components\Textarea::make('condition_notes_before')->label('Observations'),
+                    ]),
+                    Forms\Components\Fieldset::make('Retour')->columns(1)->schema([
+                        Forms\Components\TextInput::make('mileage_end')->label('Kilométrage')->numeric()->suffix('km'),
+                        Forms\Components\Select::make('fuel_level_end')->label('Niveau carburant')
+                            ->options(self::FUEL_LEVELS),
+                        Forms\Components\FileUpload::make('photos_after')->label('Photos retour')
+                            ->image()->multiple()->directory('inspections')->reorderable(),
+                        Forms\Components\Textarea::make('condition_notes_after')->label('Observations / dégâts'),
+                    ]),
+                ]),
 
             Forms\Components\Section::make('Notes')->schema([
                 Forms\Components\Textarea::make('internal_notes')->label('Notes internes')->columnSpanFull(),
