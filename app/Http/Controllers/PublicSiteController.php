@@ -316,17 +316,18 @@ class PublicSiteController extends Controller
     {
         $ranges = [];
 
+        // Les bornes de fin (end_date) sont exclusives ; on disable jusqu'à end_date - 1 jour.
         foreach ($vehicle->bookings()->whereIn('status', self::BLOCKING_STATUSES)->get() as $b) {
             $ranges[] = [
                 'from' => $b->start_date?->toDateString(),
-                'to' => $b->end_date?->toDateString(),
+                'to' => $b->end_date?->copy()->subDay()->toDateString(),
             ];
         }
 
         foreach ($vehicle->availabilities()->get() as $a) {
             $ranges[] = [
                 'from' => $a->start_date?->toDateString(),
-                'to' => $a->end_date?->toDateString(),
+                'to' => $a->end_date?->copy()->subDay()->toDateString(),
             ];
         }
 

@@ -158,13 +158,6 @@ class VehicleResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            \App\Filament\Resources\VehicleResource\RelationManagers\AvailabilitiesRelationManager::class,
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
