@@ -27,12 +27,28 @@ class AdminPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->brandName('Medlicar')
+            // Logo de l'agence : dépose le fichier dans public/images/logo.png
+            // (s'affichera automatiquement ; sinon le nom "Medlicar" est utilisé).
+            ->brandLogo(fn () => file_exists(public_path('images/logo.png')) ? asset('images/logo.png') : null)
+            ->brandLogoHeight('2.5rem')
+            ->favicon(fn () => file_exists(public_path('images/favicon.png')) ? asset('images/favicon.png') : null)
             ->login()
+            // Couleurs du drapeau algérien (vert / rouge ; le blanc est le fond clair)
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::hex('#006233'), // vert
+                'success' => Color::hex('#006233'),
+                'danger' => Color::hex('#D21034'),  // rouge
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->navigationGroups([
+                'Réservations',
+                'Clients',
+                'Parc',
+                'Tarifs',
+                'Finances',
+                'Configuration',
+            ])
             ->pages([
                 Pages\Dashboard::class,
             ])

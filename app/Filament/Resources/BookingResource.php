@@ -3,272 +3,102 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BookingResource\Pages;
-use App\Filament\Resources\BookingResource\RelationManagers;
 use App\Models\Booking;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BookingResource extends Resource
 {
     protected static ?string $model = Booking::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationGroup = 'Réservations';
+    protected static ?string $navigationLabel = 'Réservations';
+    protected static ?string $modelLabel = 'réservation';
+    protected static ?string $pluralModelLabel = 'Réservations';
+    protected static ?int $navigationSort = 1;
+
+    public const STATUSES = [
+        'pending' => 'En attente',
+        'expired' => 'Expirée',
+        'confirmed' => 'Confirmée',
+        'active' => 'En cours',
+        'returning' => 'Retour aujourd\'hui',
+        'completed' => 'Terminée',
+        'cancelled' => 'Annulée',
+        'dispute' => 'Litige',
+    ];
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('reference')
-                    ->required(),
-                Forms\Components\TextInput::make('vehicle_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('customer_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('created_by')
-                    ->numeric(),
-                Forms\Components\DateTimePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DateTimePicker::make('end_date')
-                    ->required(),
-                Forms\Components\TextInput::make('total_days')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('pickup_location'),
-                Forms\Components\TextInput::make('return_location'),
-                Forms\Components\TextInput::make('flight_number'),
-                Forms\Components\Textarea::make('pickup_notes')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('return_notes')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('base_price')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('duration_discount')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('season_surcharge')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('options_total')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('delivery_fee')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('extra_fees')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('discount_amount')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('total_price')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('currency')
-                    ->required(),
-                Forms\Components\Textarea::make('selected_options')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('deposit_amount')
-                    ->numeric(),
-                Forms\Components\TextInput::make('deposit_status')
-                    ->required(),
-                Forms\Components\Textarea::make('deposit_notes')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('advance_amount')
-                    ->numeric(),
-                Forms\Components\TextInput::make('advance_status')
-                    ->required(),
-                Forms\Components\TextInput::make('advance_payment_method'),
-                Forms\Components\DateTimePicker::make('advance_paid_at'),
-                Forms\Components\DateTimePicker::make('advance_expires_at'),
-                Forms\Components\TextInput::make('amount_paid')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('amount_remaining')
-                    ->numeric(),
-                Forms\Components\TextInput::make('payment_method'),
-                Forms\Components\TextInput::make('payment_status')
-                    ->required(),
-                Forms\Components\Textarea::make('photos_before')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('photos_after')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('condition_notes_before')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('condition_notes_after')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('mileage_start')
-                    ->numeric(),
-                Forms\Components\TextInput::make('mileage_end')
-                    ->numeric(),
-                Forms\Components\TextInput::make('fuel_level_start'),
-                Forms\Components\TextInput::make('fuel_level_end'),
-                Forms\Components\DateTimePicker::make('contract_signed_at'),
-                Forms\Components\TextInput::make('contract_signature'),
-                Forms\Components\TextInput::make('contract_pdf'),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
-                Forms\Components\Textarea::make('cancellation_reason')
-                    ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('cancelled_at'),
-                Forms\Components\TextInput::make('cancelled_by'),
-                Forms\Components\TextInput::make('source')
-                    ->required(),
-                Forms\Components\Textarea::make('internal_notes')
-                    ->columnSpanFull(),
-            ]);
+        return $form->schema([
+            Forms\Components\Section::make('Réservation')->columns(2)->schema([
+                Forms\Components\TextInput::make('reference')->label('Référence')
+                    ->default(fn () => Booking::generateReference())->required()->unique(ignoreRecord: true),
+                Forms\Components\Select::make('status')->label('Statut')
+                    ->options(self::STATUSES)->default('pending')->required(),
+                Forms\Components\Select::make('vehicle_id')->label('Véhicule')
+                    ->relationship('vehicle', 'full_name')->searchable()->preload()->required(),
+                Forms\Components\Select::make('customer_id')->label('Client')
+                    ->relationship('customer', 'last_name')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
+                    ->searchable()->preload(),
+                Forms\Components\DateTimePicker::make('start_date')->label('Date de début')->required(),
+                Forms\Components\DateTimePicker::make('end_date')->label('Date de fin')->required(),
+                Forms\Components\TextInput::make('total_days')->label('Nombre de jours')->numeric()->required(),
+            ]),
+            Forms\Components\Section::make('Montants')->columns(3)->schema([
+                Forms\Components\TextInput::make('base_price')->label('Prix de base')->numeric()->required()->suffix('DA'),
+                Forms\Components\TextInput::make('options_total')->label('Total options')->numeric()->default(0)->suffix('DA'),
+                Forms\Components\TextInput::make('discount_amount')->label('Remise')->numeric()->default(0)->suffix('DA'),
+                Forms\Components\TextInput::make('total_price')->label('Total')->numeric()->required()->suffix('DA'),
+                Forms\Components\TextInput::make('deposit_amount')->label('Caution')->numeric()->suffix('DA'),
+                Forms\Components\TextInput::make('advance_amount')->label('Acompte')->numeric()->suffix('DA'),
+            ]),
+            Forms\Components\Section::make('Paiement')->columns(3)->schema([
+                Forms\Components\Select::make('advance_status')->label('Statut acompte')
+                    ->options(['pending' => 'En attente', 'paid' => 'Payé', 'refunded' => 'Remboursé'])->default('pending'),
+                Forms\Components\Select::make('payment_status')->label('Statut paiement')
+                    ->options(['pending' => 'En attente', 'partial' => 'Partiel', 'paid' => 'Payé', 'refunded' => 'Remboursé'])->default('pending'),
+                Forms\Components\Select::make('deposit_status')->label('Statut caution')
+                    ->options(['pending' => 'En attente', 'held' => 'Bloquée', 'returned' => 'Restituée', 'partial' => 'Partielle', 'kept' => 'Conservée'])->default('pending'),
+            ]),
+            Forms\Components\Section::make('Notes')->schema([
+                Forms\Components\Textarea::make('internal_notes')->label('Notes internes')->columnSpanFull(),
+            ])->collapsed(),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('start_date', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('reference')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('vehicle_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('customer_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_by')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('start_date')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total_days')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('pickup_location')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('return_location')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('flight_number')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('base_price')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('duration_discount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('season_surcharge')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('options_total')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('delivery_fee')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('extra_fees')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('discount_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total_price')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('currency')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('deposit_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('deposit_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('advance_amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('advance_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('advance_payment_method')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('advance_paid_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('advance_expires_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('amount_paid')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('amount_remaining')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('payment_method')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('payment_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('mileage_start')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('mileage_end')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('fuel_level_start')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fuel_level_end')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('contract_signed_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('contract_signature')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('contract_pdf')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('cancelled_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('cancelled_by')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('source')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('reference')->label('Réf.')->searchable()->weight('bold'),
+                Tables\Columns\TextColumn::make('customer.last_name')->label('Client')
+                    ->formatStateUsing(fn ($record) => $record->customer?->full_name)->searchable(),
+                Tables\Columns\TextColumn::make('vehicle.full_name')->label('Véhicule')->searchable(),
+                Tables\Columns\TextColumn::make('start_date')->label('Début')->date()->sortable(),
+                Tables\Columns\TextColumn::make('total_price')->label('Total')->money('DZD')->sortable(),
+                Tables\Columns\TextColumn::make('status')->label('Statut')->badge()
+                    ->formatStateUsing(fn ($state) => self::STATUSES[$state] ?? $state)
+                    ->color(fn ($state) => match ($state) {
+                        'confirmed', 'active' => 'success',
+                        'pending', 'returning' => 'warning',
+                        'cancelled', 'expired', 'dispute' => 'danger',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')->label('Statut')->options(self::STATUSES),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+            ->actions([Tables\Actions\EditAction::make()])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
