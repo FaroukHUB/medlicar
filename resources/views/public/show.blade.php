@@ -80,8 +80,32 @@
                         <p class="text-xs text-gray-400 mt-1">Les dates indisponibles sont grisées.</p>
                     </div>
 
-                    <div id="price-box" class="hidden bg-gray-50 rounded-lg p-3 text-sm">
-                        <div class="flex justify-between"><span id="price-detail"></span><span id="price-total" class="font-bold text-dz-green"></span></div>
+                    @if($options->isNotEmpty())
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Options</label>
+                            <div class="space-y-1.5">
+                                @foreach($options as $opt)
+                                    <label class="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2 cursor-pointer">
+                                        <span class="flex items-center gap-2">
+                                            <input type="checkbox" name="options[]" value="{{ $opt->id }}"
+                                                   class="opt-check rounded text-dz-green"
+                                                   data-price="{{ (float) $opt->price }}" data-type="{{ $opt->price_type }}"
+                                                   @checked(in_array($opt->id, old('options', [])))>
+                                            {{ $opt->name }}
+                                        </span>
+                                        <span class="text-gray-500">
+                                            {{ number_format($opt->price, 0, ',', ' ') }} DA{{ $opt->price_type === 'per_day' ? '/j' : '' }}
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div id="price-box" class="hidden bg-gray-50 rounded-lg p-3 text-sm space-y-1">
+                        <div class="flex justify-between"><span id="price-detail"></span><span id="price-base"></span></div>
+                        <div id="price-options-row" class="flex justify-between text-gray-500 hidden"><span>Options</span><span id="price-options"></span></div>
+                        <div class="flex justify-between border-t pt-1 font-bold text-dz-green"><span>Total</span><span id="price-total"></span></div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -112,9 +136,31 @@
     const endEl = document.getElementById('end_date');
     const priceBox = document.getElementById('price-box');
     const priceDetail = document.getElementById('price-detail');
+    const priceBase = document.getElementById('price-base');
+    const priceOptionsRow = document.getElementById('price-options-row');
+    const priceOptions = document.getElementById('price-options');
     const priceTotal = document.getElementById('price-total');
 
+    let currentDays = 0;
     function fmt(n){ return new Intl.NumberFormat('fr-FR').format(n) + ' DA'; }
+
+    function recalc() {
+        if (currentDays < 1) { priceBox.classList.add('hidden'); return; }
+        const base = currentDays * pricePerDay;
+        let opt = 0;
+        document.querySelectorAll('.opt-check:checked').forEach(c => {
+            const p = parseFloat(c.dataset.price) || 0;
+            opt += c.dataset.type === 'per_day' ? p * currentDays : p;
+        });
+        priceDetail.textContent = fmt(pricePerDay) + ' × ' + currentDays + ' j';
+        priceBase.textContent = fmt(base);
+        if (opt > 0) { priceOptions.textContent = fmt(opt); priceOptionsRow.classList.remove('hidden'); }
+        else { priceOptionsRow.classList.add('hidden'); }
+        priceTotal.textContent = fmt(base + opt);
+        priceBox.classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.opt-check').forEach(c => c.addEventListener('change', recalc));
 
     flatpickr('#daterange', {
         mode: 'range',
@@ -128,13 +174,11 @@
         onClose: function (selectedDates) {
             if (selectedDates.length === 2) {
                 const s = selectedDates[0], e = selectedDates[1];
-                startEl.value = s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
-                endEl.value = e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+String(e.getDate()).padStart(2,'0');
-                const days = Math.max(1, Math.round((e - s) / 86400000));
-                const total = days * pricePerDay;
-                priceDetail.textContent = fmt(pricePerDay) + ' × ' + days + ' jour(s)';
-                priceTotal.textContent = fmt(total);
-                priceBox.classList.remove('hidden');
+                const f = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+                startEl.value = f(s);
+                endEl.value = f(e);
+                currentDays = Math.max(1, Math.round((e - s) / 86400000));
+                recalc();
             }
         }
     });

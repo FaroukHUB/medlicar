@@ -33,6 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.5rem')
             ->favicon(fn () => file_exists(public_path('images/favicon.png')) ? asset('images/favicon.png') : null)
             ->login()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             // Couleurs du drapeau algérien (vert / rouge ; le blanc est le fond clair)
             ->colors([
                 'primary' => Color::hex('#006233'), // vert

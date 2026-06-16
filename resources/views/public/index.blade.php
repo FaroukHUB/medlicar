@@ -10,7 +10,38 @@
 </section>
 
 <section class="max-w-6xl mx-auto px-4 py-10">
-    <h2 class="text-xl font-bold mb-6">Notre flotte</h2>
+    {{-- Filtres --}}
+    <form method="GET" action="{{ route('public.home') }}" class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-sm p-4 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Catégorie</label>
+            <select name="category_id" class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 text-sm">
+                <option value="">Toutes</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}" @selected(($filters['category_id'] ?? null) == $cat->id)>{{ $cat->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Prix min (DA/j)</label>
+            <input type="number" name="price_min" value="{{ $filters['price_min'] ?? '' }}" min="0" class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Prix max (DA/j)</label>
+            <input type="number" name="price_max" value="{{ $filters['price_max'] ?? '' }}" min="0" class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs text-gray-500 mb-1">Disponible (période)</label>
+            <input type="text" id="filter-range" placeholder="Toutes dates" readonly class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 text-sm">
+            <input type="hidden" name="start_date" id="f_start" value="{{ $filters['start_date'] ?? '' }}">
+            <input type="hidden" name="end_date" id="f_end" value="{{ $filters['end_date'] ?? '' }}">
+        </div>
+        <div class="flex gap-2">
+            <button type="submit" class="flex-1 bg-dz-green text-white text-sm font-semibold py-2 rounded-lg hover:bg-dz-greendark">Filtrer</button>
+            <a href="{{ route('public.home') }}" class="px-3 py-2 text-sm text-gray-500 ring-1 ring-gray-200 rounded-lg hover:bg-gray-50">Réinitialiser</a>
+        </div>
+    </form>
+
+    <h2 class="text-xl font-bold mb-6">Notre flotte <span class="text-sm font-normal text-gray-400">({{ $vehicles->count() }})</span></h2>
 
     @if($vehicles->isEmpty())
         <p class="text-gray-500">Aucun véhicule disponible pour le moment.</p>
@@ -48,3 +79,18 @@
     @endif
 </section>
 @endsection
+
+@push('scripts')
+<script>
+    const fStart = document.getElementById('f_start'), fEnd = document.getElementById('f_end');
+    flatpickr('#filter-range', {
+        mode: 'range', locale: 'fr', minDate: 'today', dateFormat: 'Y-m-d', altInput: true, altFormat: 'd/m/Y',
+        defaultDate: (fStart.value && fEnd.value) ? [fStart.value, fEnd.value] : null,
+        onClose: function (dates) {
+            const f = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+            fStart.value = dates[0] ? f(dates[0]) : '';
+            fEnd.value = dates[1] ? f(dates[1]) : '';
+        }
+    });
+</script>
+@endpush
