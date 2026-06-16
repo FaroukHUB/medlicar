@@ -1,0 +1,4 @@
+[28-Feb-2026 15:51:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Artisan" not found in /home/zajr1824/resadz.mon-agenceweb.fr/routes/console.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/zajr1824/resadz.mon-agenceweb.fr/routes/console.php on line 7
