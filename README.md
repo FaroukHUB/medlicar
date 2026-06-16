@@ -23,18 +23,29 @@ sans la couche marketplace.
 **À suivre** — Phase 1 (MVP : calendrier, cycle réservation, contrat PDF, acomptes,
 dashboard), Phase 2 (factures, stats, notifications), Phase 3 (mini-site, services).
 
-## Installation locale
+## Base de données
+
+**MySQL / MariaDB** (cible de production : hébergement mutualisé **o2switch**).
+Le schéma a été validé sur **MariaDB 10.11** (`migrate:fresh --seed` OK).
+`.env.example` est déjà configuré pour MySQL — il suffit de renseigner tes accès.
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=medlicar
+DB_USERNAME=medlicar
+DB_PASSWORD=********
+```
+
+## Installation
 
 ```bash
 composer install
-cp .env.example .env
+cp .env.example .env       # puis renseigner les accès MySQL
 php artisan key:generate
-
-# DB : SQLite (rapide) ou MySQL (prod o2switch)
-touch database/database.sqlite      # si SQLite
 php artisan migrate --seed
-
-npm install && npm run build        # assets
+npm install && npm run build
 php artisan serve
 ```
 
@@ -46,15 +57,5 @@ php artisan serve
 
 > ⚠️ Compte de démonstration — à changer avant toute mise en production.
 
-## Configuration MySQL (production)
-
-Dans `.env` :
-
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=medlicar
-DB_USERNAME=...
-DB_PASSWORD=...
-```
+> Astuce dev : pour un essai local sans serveur MySQL, on peut basculer
+> `DB_CONNECTION=sqlite` + `touch database/database.sqlite`. **La production reste MySQL.**
