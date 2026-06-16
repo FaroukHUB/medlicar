@@ -191,6 +191,9 @@ class BookingResource extends Resource
                 Tables\Columns\TextColumn::make('customer.last_name')->label('Client')
                     ->formatStateUsing(fn ($record) => $record->customer?->full_name)->searchable(),
                 Tables\Columns\TextColumn::make('vehicle.full_name')->label('Véhicule')->searchable(),
+                Tables\Columns\TextColumn::make('source')->label('Source')->badge()
+                    ->formatStateUsing(fn ($state) => $state === 'website' ? 'Site web' : 'Agence')
+                    ->color(fn ($state) => $state === 'website' ? 'info' : 'gray'),
                 Tables\Columns\TextColumn::make('start_date')->label('Début')->date()->sortable(),
                 Tables\Columns\TextColumn::make('total_price')->label('Total')->money('DZD')->sortable(),
                 Tables\Columns\TextColumn::make('status')->label('Statut')->badge()
