@@ -3,9 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BookingResource\Pages;
+use App\Models\Agency;
 use App\Models\Booking;
+use App\Models\Option;
+use App\Models\Vehicle;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,8 +38,44 @@ class BookingResource extends Resource
         'dispute' => 'Litige',
     ];
 
+    /** Recalcule jours, prix de base, options, total et acompte. */
+    public static function recalculate(Get $get, Set $set): void
+    {
+        $start = $get('start_date');
+        $end = $get('end_date');
+
+        $days = 1;
+        if ($start && $end) {
+            $days = (int) ceil(Carbon::parse($start)->floatDiffInDays(Carbon::parse($end)));
+            $days = max(1, $days);
+        }
+        $set('total_days', $days);
+
+        $daily = (float) (Vehicle::find($get('vehicle_id'))?->price_per_day ?? 0);
+        $base = $days * $daily;
+        $set('base_price', $base);
+
+        $optTotal = 0;
+        $optIds = $get('selected_options') ?? [];
+        if (! empty($optIds)) {
+            foreach (Option::whereIn('id', $optIds)->get() as $o) {
+                $optTotal += $o->price_type === 'per_day' ? (float) $o->price * $days : (float) $o->price;
+            }
+        }
+        $set('options_total', $optTotal);
+
+        $discount = (float) $get('discount_amount');
+        $total = max(0, $base + $optTotal - $discount);
+        $set('total_price', $total);
+
+        $pct = (float) (Agency::current()->default_advance_percent ?? 0);
+        $set('advance_amount', round($total * $pct / 100));
+    }
+
     public static function form(Form $form): Form
     {
+        $recalc = fn (Get $get, Set $set) => self::recalculate($get, $set);
+
         return $form->schema([
             Forms\Components\Section::make('Réservation')->columns(2)->schema([
                 Forms\Components\TextInput::make('reference')->label('Référence')
@@ -41,24 +83,62 @@ class BookingResource extends Resource
                 Forms\Components\Select::make('status')->label('Statut')
                     ->options(self::STATUSES)->default('pending')->required(),
                 Forms\Components\Select::make('vehicle_id')->label('Véhicule')
-                    ->relationship('vehicle', 'full_name')->searchable()->preload()->required(),
+                    ->relationship('vehicle', 'full_name')->searchable()->preload()->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                        $set('deposit_amount', (float) (Vehicle::find($state)?->deposit_amount ?? 0));
+                        self::recalculate($get, $set);
+                    }),
                 Forms\Components\Select::make('customer_id')->label('Client')
                     ->relationship('customer', 'last_name')
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->full_name)
-                    ->searchable()->preload(),
-                Forms\Components\DateTimePicker::make('start_date')->label('Date de début')->required(),
-                Forms\Components\DateTimePicker::make('end_date')->label('Date de fin')->required(),
-                Forms\Components\TextInput::make('total_days')->label('Nombre de jours')->numeric()->required(),
+                    ->searchable()->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('first_name')->label('Prénom')->required(),
+                        Forms\Components\TextInput::make('last_name')->label('Nom')->required(),
+                        Forms\Components\TextInput::make('phone')->label('Téléphone')->required(),
+                    ]),
+                Forms\Components\DateTimePicker::make('start_date')->label('Date de début')->required()
+                    ->live()->afterStateUpdated($recalc),
+                Forms\Components\DateTimePicker::make('end_date')->label('Date de fin')->required()
+                    ->live()->afterStateUpdated($recalc)
+                    ->rule(static function (Get $get, ?Booking $record) {
+                        return static function (string $attribute, $value, \Closure $fail) use ($get, $record) {
+                            $vehicleId = $get('vehicle_id');
+                            $start = $get('start_date');
+                            if (! $vehicleId || ! $start || ! $value) {
+                                return;
+                            }
+                            $overlap = Booking::where('vehicle_id', $vehicleId)
+                                ->whereIn('status', ['pending', 'confirmed', 'active', 'returning'])
+                                ->when($record, fn ($q) => $q->whereKeyNot($record->getKey()))
+                                ->where('start_date', '<', $value)
+                                ->where('end_date', '>', $start)
+                                ->exists();
+                            if ($overlap) {
+                                $fail('Ce véhicule est déjà réservé sur cette période.');
+                            }
+                        };
+                    }),
+                Forms\Components\TextInput::make('total_days')->label('Nombre de jours')->numeric()->readOnly(),
             ]),
-            Forms\Components\Section::make('Montants')->columns(3)->schema([
-                Forms\Components\TextInput::make('base_price')->label('Prix de base')->numeric()->required()->suffix('DA'),
-                Forms\Components\TextInput::make('options_total')->label('Total options')->numeric()->default(0)->suffix('DA'),
-                Forms\Components\TextInput::make('discount_amount')->label('Remise')->numeric()->default(0)->suffix('DA'),
-                Forms\Components\TextInput::make('total_price')->label('Total')->numeric()->required()->suffix('DA'),
+
+            Forms\Components\Section::make('Tarification')->columns(2)->schema([
+                Forms\Components\Select::make('selected_options')->label('Options / extras')
+                    ->multiple()->options(Option::where('is_active', true)->pluck('name', 'id'))
+                    ->live()->afterStateUpdated($recalc),
+                Forms\Components\TextInput::make('discount_amount')->label('Remise')->numeric()->default(0)->suffix('DA')
+                    ->live(onBlur: true)->afterStateUpdated($recalc),
+                Forms\Components\TextInput::make('base_price')->label('Prix de base')->numeric()->readOnly()->suffix('DA'),
+                Forms\Components\TextInput::make('options_total')->label('Total options')->numeric()->readOnly()->suffix('DA'),
+                Forms\Components\TextInput::make('total_price')->label('Total à payer')->numeric()->required()->readOnly()
+                    ->suffix('DA')->extraInputAttributes(['class' => 'font-bold']),
                 Forms\Components\TextInput::make('deposit_amount')->label('Caution')->numeric()->suffix('DA'),
-                Forms\Components\TextInput::make('advance_amount')->label('Acompte')->numeric()->suffix('DA'),
             ]),
+
             Forms\Components\Section::make('Paiement')->columns(3)->schema([
+                Forms\Components\TextInput::make('advance_amount')->label('Acompte')->numeric()->suffix('DA')
+                    ->helperText('Calculé selon le % défini dans les paramètres'),
                 Forms\Components\Select::make('advance_status')->label('Statut acompte')
                     ->options(['pending' => 'En attente', 'paid' => 'Payé', 'refunded' => 'Remboursé'])->default('pending'),
                 Forms\Components\Select::make('payment_status')->label('Statut paiement')
@@ -66,6 +146,7 @@ class BookingResource extends Resource
                 Forms\Components\Select::make('deposit_status')->label('Statut caution')
                     ->options(['pending' => 'En attente', 'held' => 'Bloquée', 'returned' => 'Restituée', 'partial' => 'Partielle', 'kept' => 'Conservée'])->default('pending'),
             ]),
+
             Forms\Components\Section::make('Notes')->schema([
                 Forms\Components\Textarea::make('internal_notes')->label('Notes internes')->columnSpanFull(),
             ])->collapsed(),
