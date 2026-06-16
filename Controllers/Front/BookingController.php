@@ -1,0 +1,595 @@
+<?php
+
+namespace App\Http\Controllers\Front;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBookingRequest;
+use App\Models\Booking;
+use App\Models\DeliveryZone;
+use App\Models\Option;
+use App\Models\Setting;
+use App\Models\Vehicle;
+use App\Notifications\NewBookingNotification;
+use App\Services\OptionAvailabilityService;
+use App\Services\PricingService;
+use App\Services\WebPushService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class BookingController extends Controller
+{
+    public function create(string $slug)
+    {
+        $vehicle = Vehicle::with(['brand', 'category', 'loueur'])
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->where('status', 'available')
+            ->firstOrFail();
+
+        // Un véhicule sans loueur ne peut pas être réservé
+        if (!$vehicle->loueur_id || !$vehicle->loueur) {
+            return redirect()->route('vehicles.show', $vehicle->slug)
+                ->with('error', 'Ce véhicule n\'est pas disponible à la réservation pour le moment.');
+        }
+
+        $deliveryZones = DeliveryZone::where('loueur_id', $vehicle->loueur_id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Options de location: depuis le véhicule directement
+        $rentalOptions = $vehicle->getRentalOptions();
+
+        // Méthodes de paiement d'acompte configurées par le loueur (avec timers)
+        $advancePaymentMethods = $vehicle->loueur
+            ? $vehicle->loueur->getSetting('advance_payment_methods', [])
+            : [];
+
+        // Return options settings (from vehicle)
+        $fuelReturnFee = (float) ($vehicle->fuel_return_fee ?? 0);
+        $washReturnFee = (float) ($vehicle->wash_return_fee ?? 0);
+        $returnMarginHours = $vehicle->loueur
+            ? (int) $vehicle->loueur->getSetting('return_margin_hours', 2)
+            : 2;
+
+        // Deposit settings
+        $depositRequired = $vehicle->loueur
+            ? $vehicle->loueur->getSetting('deposit_required', false)
+            : false;
+        $depositPaymentMethods = $vehicle->loueur
+            ? $vehicle->loueur->getSetting('deposit_payment_methods', [])
+            : [];
+
+        // Operating hours from platform settings
+        $operatingHoursStart = (int) Setting::get('operating_hours_start', 7);
+        $operatingHoursEnd = (int) Setting::get('operating_hours_end', 21);
+
+        // Conditions du loueur
+        $rentalConditions = $vehicle->loueur ? $vehicle->loueur->getSetting('rental_conditions', []) : [];
+        $conditionsPdf = $vehicle->loueur ? $vehicle->loueur->getSetting('conditions_pdf', null) : null;
+
+        // Mode confirmation téléphonique (pas d'acompte en ligne)
+        $phoneConfirmationMode = $vehicle->loueur
+            ? (bool) $vehicle->loueur->getSetting('phone_confirmation_mode', false)
+            : false;
+
+        // Plans de protection
+        $protectionEnabled = $vehicle->loueur
+            ? (bool) $vehicle->loueur->getSetting('protection_complete_enabled', false)
+            : false;
+        $protectionPercent = $vehicle->loueur
+            ? (int) $vehicle->loueur->getSetting('protection_complete_percent', 50)
+            : 50;
+        $protectionBasicDetails = $vehicle->loueur
+            ? $vehicle->loueur->getSetting('protection_basic_details', [
+                ['text' => 'Accident non responsable: Vous payez uniquement l\'immobilisation'],
+                ['text' => 'Négligence ou faute: Réparations à votre charge'],
+                ['text' => 'Inclus: Responsabilité civile, dommages non responsables, assistance dépannage'],
+            ]) : [];
+        $protectionCompleteDetails = $vehicle->loueur
+            ? $vehicle->loueur->getSetting('protection_complete_details', [
+                ['text' => 'Accident responsable ou non: Zéro frais à payer'],
+                ['text' => 'Inclus: Responsabilité civile, collisions (tous cas), vol, bris de glace, pneus, phares, immobilisation, assistance complète'],
+                ['text' => 'Aucune caution demandée'],
+            ]) : [];
+
+        return view('front.pages.booking', compact(
+            'vehicle',
+            'deliveryZones',
+            'rentalOptions',
+            'advancePaymentMethods',
+            'fuelReturnFee',
+            'washReturnFee',
+            'returnMarginHours',
+            'depositRequired',
+            'depositPaymentMethods',
+            'operatingHoursStart',
+            'operatingHoursEnd',
+            'rentalConditions',
+            'conditionsPdf',
+            'phoneConfirmationMode',
+            'protectionEnabled',
+            'protectionPercent',
+            'protectionBasicDetails',
+            'protectionCompleteDetails'
+        ));
+    }
+
+    /**
+     * Calcul du prix en AJAX (appelé quand le client change les dates/options).
+     */
+    public function calculatePrice(Request $request, PricingService $pricingService)
+    {
+        $request->validate([
+            'vehicle_id' => 'required|exists:vehicles,id',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after:start_date',
+            'pickup_zone_id' => 'nullable|exists:delivery_zones,id',
+            'return_zone_id' => 'nullable|exists:delivery_zones,id',
+            'options' => 'nullable|array',
+            'currency' => 'nullable|in:DZD,EUR',
+        ]);
+
+        $vehicle = Vehicle::with('loueur')->findOrFail($request->vehicle_id);
+        $loueur = $vehicle->loueur;
+        $selectedOptions = $request->options ?? [];
+
+        // Calculer les jours
+        $start = \Carbon\Carbon::parse($request->start_date);
+        $end = \Carbon\Carbon::parse($request->end_date);
+        $totalDays = max(1, $start->diffInDays($end));
+
+        // Calculer les frais d'options avec détails
+        $optionsFees = 0;
+        $optionsDetail = [];
+
+        // Options de retour (plein/lavage)
+        $fuelReturnFee = (float) ($vehicle->fuel_return_fee ?? 0);
+        $washReturnFee = (float) ($vehicle->wash_return_fee ?? 0);
+
+        if (in_array('Retour sans plein', $selectedOptions) && $fuelReturnFee > 0) {
+            $optionsFees += $fuelReturnFee;
+            $optionsDetail[] = ['name' => 'Retour sans plein', 'total' => $fuelReturnFee];
+        }
+        if (in_array('Retour sans lavage', $selectedOptions) && $washReturnFee > 0) {
+            $optionsFees += $washReturnFee;
+            $optionsDetail[] = ['name' => 'Retour sans lavage', 'total' => $washReturnFee];
+        }
+
+        // Options de location: depuis le véhicule
+        $allOptions = $vehicle->getRentalOptions();
+
+        foreach ($allOptions as $option) {
+            $optionName = $option['name'] ?? '';
+            if (in_array($optionName, $selectedOptions)) {
+                $isFree = ($option['is_free'] ?? false) || (($option['price'] ?? 0) == 0);
+                if (!$isFree) {
+                    $price = (float) ($option['price'] ?? 0);
+                    $per = $option['per'] ?? 'day';
+                    $optionTotal = ($per === 'day') ? $price * $totalDays : $price;
+                    $optionsFees += $optionTotal;
+                    $optionsDetail[] = ['name' => $optionName, 'total' => $optionTotal];
+                }
+            }
+        }
+
+        // Calculer le prix de base
+        $pricing = $pricingService->calculate(
+            vehicle: $vehicle,
+            startDate: $request->start_date,
+            endDate: $request->end_date,
+            pickupZoneId: $request->pickup_zone_id,
+            returnZoneId: $request->return_zone_id,
+            selectedOptions: [],
+            currency: $request->currency ?? 'DZD'
+        );
+
+        // Ajouter les frais d'options au total
+        $pricing['options_total'] = $optionsFees;
+        $pricing['options_detail'] = $optionsDetail;
+        $pricing['total'] = $pricing['total'] + $optionsFees;
+        $pricing['formatted_total'] = number_format($pricing['total'], 0, ',', ' ') . ' ' . ($pricing['currency'] === 'EUR' ? '€' : 'DA');
+
+        // Recalculer l'acompte avec le nouveau total (incluant options)
+        $advancePercentage = $loueur ? $loueur->getSetting('advance_percentage', 0) : 0;
+        $pricing['advance_amount'] = round($pricing['total'] * $advancePercentage / 100);
+        $pricing['formatted_advance'] = number_format($pricing['advance_amount'], 0, ',', ' ') . ' ' . ($pricing['currency'] === 'EUR' ? '€' : 'DA');
+
+        // EUR amounts are calculated in PricingService based on vehicle's price_per_day_eur
+        // Format advance EUR if available
+        if (isset($pricing['advance_amount_eur']) && $pricing['advance_amount_eur'] > 0) {
+            $pricing['formatted_advance_eur'] = number_format($pricing['advance_amount_eur'], 0, ',', ' ') . ' €';
+        } else {
+            $pricing['formatted_advance_eur'] = '';
+        }
+
+        return response()->json($pricing);
+    }
+
+    /**
+     * Vérifie la disponibilité des options pour les dates sélectionnées.
+     */
+    public function checkOptions(Request $request, OptionAvailabilityService $optionService)
+    {
+        $request->validate([
+            'vehicle_id' => 'required|exists:vehicles,id',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after:start_date',
+        ]);
+
+        $vehicle = Vehicle::with('loueur')->findOrFail($request->vehicle_id);
+        $loueur = $vehicle->loueur;
+
+        if (!$loueur) {
+            return response()->json(['options' => []]);
+        }
+
+        $options = $optionService->getAvailableOptions(
+            $loueur,
+            $request->start_date,
+            $request->end_date
+        );
+
+        return response()->json(['options' => $options]);
+    }
+
+    /**
+     * Enregistre la demande de réservation (formulaire simplifié).
+     */
+    public function store(StoreBookingRequest $request, PricingService $pricingService, OptionAvailabilityService $optionService)
+    {
+        try {
+        // Validation is now handled by StoreBookingRequest
+        $advancePaymentMethod = $request->advance_payment_method;
+
+        // Gérer les lieux personnalisés vs zones prédéfinies
+        $isCustomPickup = $request->pickup_zone_id === 'custom';
+        $isCustomReturn = $request->return_zone_id === 'custom';
+        $customPickupLocation = $isCustomPickup ? $request->custom_pickup_location : null;
+        $customReturnLocation = $isCustomReturn ? $request->custom_return_location : null;
+
+        $pickupZoneId = (!$isCustomPickup && $request->pickup_zone_id) ? (int) $request->pickup_zone_id : null;
+        $returnZoneId = (!$isCustomReturn && $request->return_zone_id) ? (int) $request->return_zone_id : null;
+        if ($request->input('same_return_location', '1') === '1') {
+            $returnZoneId = $pickupZoneId;
+            $isCustomReturn = $isCustomPickup;
+            $customReturnLocation = $customPickupLocation;
+        }
+
+        // Récupérer les noms des zones pour les adresses
+        $pickupZone = $pickupZoneId ? DeliveryZone::find($pickupZoneId) : null;
+        $returnZone = $returnZoneId ? DeliveryZone::find($returnZoneId) : $pickupZone;
+        $pickupAddress = $isCustomPickup ? ($customPickupLocation ?? 'Lieu personnalisé') : ($pickupZone?->name ?? '');
+        $returnAddress = $isCustomReturn ? ($customReturnLocation ?? 'Lieu personnalisé') : ($returnZone?->name ?? $pickupAddress);
+
+        $vehicle = Vehicle::with('loueur')->findOrFail($request->vehicle_id);
+        $loueur = $vehicle->loueur;
+
+        // Un véhicule sans loueur ne peut pas être réservé
+        if (!$vehicle->loueur_id || !$loueur) {
+            return back()->withErrors(['vehicle_id' => 'Ce véhicule n\'est pas disponible à la réservation.'])->withInput();
+        }
+
+        // Vérifier la disponibilité du véhicule (blocages, maintenance)
+        if (!$vehicle->isAvailableForDates($request->start_date, $request->end_date)) {
+            return back()->withErrors(['start_date' => 'Ce véhicule n\'est pas disponible pour les dates sélectionnées.'])->withInput();
+        }
+
+        // Vérifier la disponibilité des options sélectionnées
+        $selectedOptions = $request->options ?? [];
+        if (!empty($selectedOptions)) {
+            $optionValidation = $optionService->validateOptions(
+                $loueur,
+                $selectedOptions,
+                $request->start_date,
+                $request->end_date
+            );
+
+            if (!$optionValidation['valid']) {
+                $unavailableList = implode(', ', $optionValidation['unavailable']);
+                return back()->withErrors([
+                    'options' => "Les options suivantes ne sont plus disponibles pour ces dates : {$unavailableList}"
+                ])->withInput();
+            }
+        }
+
+        // Vérifier le nombre minimum de jours (configuré par le loueur)
+        $start = \Carbon\Carbon::parse($request->start_date);
+        $end = \Carbon\Carbon::parse($request->end_date);
+        $totalDays = max(1, $start->diffInDays($end));
+
+        $minDays = $vehicle->min_rental_days ?? 1;
+        $maxDays = $vehicle->max_rental_days;
+
+        if ($totalDays < $minDays) {
+            return back()->withErrors(['start_date' => "La durée minimum est de {$minDays} jour(s)."])->withInput();
+        }
+
+        if ($maxDays && $totalDays > $maxDays) {
+            return back()->withErrors(['end_date' => "La durée maximum est de {$maxDays} jours."])->withInput();
+        }
+
+        // Calculer l'heure de retour automatiquement (pickup_time + marge)
+        $returnMarginHours = $loueur ? (int) $loueur->getSetting('return_margin_hours', 2) : (int) Setting::get('default_return_margin_hours', 2);
+        $maxReturnHour = (int) Setting::get('max_return_hour', 22);
+        $minReturnHour = (int) Setting::get('min_return_hour', 10);
+        $pickupTimeParts = explode(':', $request->pickup_time);
+        $returnHour = (int) $pickupTimeParts[0] + $returnMarginHours;
+        if ($returnHour > $maxReturnHour) $returnHour = $maxReturnHour;
+        if ($returnHour < $minReturnHour) $returnHour = $minReturnHour;
+        $returnTime = sprintf('%02d:%02d', $returnHour, $pickupTimeParts[1] ?? 0);
+
+        // Gérer les options sélectionnées
+        $selectedOptions = $request->options ?? [];
+        $optionsFees = 0;
+
+        // Options de retour (plein/lavage)
+        $fuelReturnFee = (float) ($vehicle->fuel_return_fee ?? 0);
+        $washReturnFee = (float) ($vehicle->wash_return_fee ?? 0);
+
+        if (in_array('Retour sans plein', $selectedOptions) && $fuelReturnFee > 0) {
+            $optionsFees += $fuelReturnFee;
+        }
+        if (in_array('Retour sans lavage', $selectedOptions) && $washReturnFee > 0) {
+            $optionsFees += $washReturnFee;
+        }
+
+        // Options de location: depuis le véhicule
+        $allOptions = $vehicle->getRentalOptions();
+
+        foreach ($allOptions as $option) {
+            $optionName = $option['name'] ?? '';
+            if (in_array($optionName, $selectedOptions)) {
+                // Si l'option n'est pas gratuite
+                $isFree = ($option['is_free'] ?? false) || (($option['price'] ?? 0) == 0);
+                if (!$isFree) {
+                    $price = (float) ($option['price'] ?? 0);
+                    $per = $option['per'] ?? 'day';
+                    if ($per === 'day') {
+                        $optionsFees += $price * $totalDays;
+                    } else {
+                        $optionsFees += $price;
+                    }
+                }
+            }
+        }
+
+        // Calculer le prix de base (sans les options du loueur, car on les calcule séparément)
+        $pricing = $pricingService->calculate(
+            vehicle: $vehicle,
+            startDate: $request->start_date,
+            endDate: $request->end_date,
+            pickupZoneId: $pickupZoneId,
+            returnZoneId: $returnZoneId,
+            selectedOptions: [], // Options calculées manuellement
+            currency: $request->currency ?? 'DZD'
+        );
+
+        // Total avec frais d'options
+        $totalPrice = $pricing['total'] + $optionsFees;
+
+        // Protection complète
+        $protectionPlan = $request->input('protection_plan', 'basic');
+        $protectionSupplement = 0;
+        if ($protectionPlan === 'complete' && $loueur) {
+            $protectionEnabled = (bool) $loueur->getSetting('protection_complete_enabled', false);
+            $protectionPercent = (int) $loueur->getSetting('protection_complete_percent', 50);
+            if ($protectionEnabled) {
+                $protectionSupplement = round($pricing['base_price'] * $protectionPercent / 100, 2);
+                $totalPrice += $protectionSupplement;
+            }
+        }
+
+        // Mode confirmation téléphonique : pas d'acompte en ligne
+        $phoneConfirmationMode = $loueur ? (bool) $loueur->getSetting('phone_confirmation_mode', false) : false;
+        if ($phoneConfirmationMode) {
+            $pricing['advance_amount'] = 0;
+            $pricing['advance_amount_eur'] = 0;
+        }
+
+        // Timer basé sur la méthode de paiement choisie par le client
+        $timerHours = null;
+        $advancePaymentMethods = $loueur ? $loueur->getSetting('advance_payment_methods', []) : [];
+
+        if (!$phoneConfirmationMode && $advancePaymentMethod && $pricing['advance_amount'] > 0 && !empty($advancePaymentMethods)) {
+            foreach ($advancePaymentMethods as $apm) {
+                if (($apm['method'] ?? '') === $advancePaymentMethod) {
+                    $timerHours = (int) ($apm['timer_hours'] ?? 24);
+                    break;
+                }
+            }
+        }
+
+        // Anti-doublon : vérifier qu'il n'y a pas déjà une réservation confirmée pour ces dates
+        $conflicting = Booking::where('vehicle_id', $vehicle->id)
+            ->whereIn('status', ['confirmed', 'active'])
+            ->where(function ($q) use ($request) {
+                $q->whereBetween('start_date', [$request->start_date, $request->end_date])
+                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                  ->orWhere(function ($q2) use ($request) {
+                      $q2->where('start_date', '<=', $request->start_date)
+                          ->where('end_date', '>=', $request->end_date);
+                  });
+            })
+            ->exists();
+
+        if ($conflicting) {
+            return back()->withInput()->withErrors(['dates' => 'Ce véhicule est déjà réservé pour ces dates. Veuillez choisir d\'autres dates.']);
+        }
+
+        // Créer la réservation
+        $booking = Booking::create([
+            'loueur_id' => $vehicle->loueur_id,
+            'vehicle_id' => $vehicle->id,
+            'client_id' => auth()->id(),
+            'status' => 'pending',
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'total_days' => $pricing['total_days'],
+            'client_name' => $request->client_name,
+            'client_phone' => $request->client_phone,
+            'client_email' => $request->client_email,
+            'pickup_zone_id' => $pickupZoneId,
+            'return_zone_id' => $returnZoneId,
+            'pickup_address' => $pickupAddress,
+            'custom_pickup_location' => $customPickupLocation,
+            'pickup_time' => $request->pickup_time,
+            'return_address' => $returnAddress,
+            'custom_return_location' => $customReturnLocation,
+            'return_time' => $returnTime,
+            'currency' => $request->currency ?? 'DZD',
+            'base_price' => $pricing['base_price'],
+            'duration_discount' => $pricing['duration_discount'],
+            'season_surcharge' => $pricing['season_surcharge'],
+            'delivery_fee' => $pricing['delivery_fee'],
+            'return_fee' => $pricing['return_fee'],
+            'options_total' => $optionsFees,
+            'extra_fees' => 0,
+            'selected_options' => $selectedOptions,
+            'protection_plan' => $protectionPlan,
+            'protection_supplement' => $protectionSupplement,
+            'total_price' => $totalPrice,
+            'total_price_eur' => $pricing['total_eur'] ?? 0,
+            'commission_amount' => $pricing['loueur_commission_total'] ?? 0,
+            'commission_rate' => $pricing['commission_rate'] ?? 0,
+            'commission_tier' => $pricing['commission_tier'] ?? null,
+            'client_service_fee' => 0, // Nouveau modèle 2026: locataire ne paie aucune commission
+            'advance_amount' => $pricing['advance_amount'],
+            'advance_amount_eur' => $pricing['advance_amount_eur'] ?? 0,
+            'advance_status' => 'pending',
+            'advance_payment_method' => $advancePaymentMethod ?? '',
+            'advance_expires_at' => $timerHours ? now()->addHours($timerHours) : null,
+            'deposit_amount' => $protectionPlan === 'complete' ? 0 : ($pricing['deposit_amount_da'] ?? $pricing['deposit_amount'] ?? 0),
+            'deposit_amount_eur' => $protectionPlan === 'complete' ? 0 : ($pricing['deposit_amount_eur'] ?? 0),
+            'deposit_currency' => $pricing['deposit_currency'],
+            'payment_status' => 'pending',
+            'amount_paid' => 0,
+            'amount_remaining' => $totalPrice,
+            'internal_notes' => $request->internal_notes,
+            'flight_number' => $request->flight_number,
+            'airline' => $request->airline,
+        ]);
+
+        // Send push notification to loueur if enabled
+        if ($loueur && $loueur->getSetting('notify_push', true)) {
+            try {
+                $webPush = new WebPushService();
+                $webPush->sendBookingNotification($loueur, [
+                    'vehicle' => $vehicle->full_name,
+                    'dates' => $booking->start_date->format('d/m') . ' - ' . $booking->end_date->format('d/m'),
+                    'amount' => number_format($totalPrice, 0, ',', ' ') . ' DA',
+                    'booking_id' => $booking->id,
+                    'url' => '/loueur/bookings/' . $booking->id,
+                ]);
+            } catch (\Exception $e) {
+                // Silently fail - don't block booking creation
+                \Log::warning('Push notification failed: ' . $e->getMessage());
+            }
+        }
+
+        // Send email notification to loueur if enabled
+        if ($loueur && $loueur->getSetting('notify_email', true)) {
+            try {
+                $loueur->notify(new NewBookingNotification($booking));
+            } catch (\Exception $e) {
+                // Silently fail - don't block booking creation
+                \Log::warning('Email notification failed: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('booking.confirmation', $booking->reference);
+        } catch (\Exception $e) {
+            \Log::error('Booking creation failed: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return back()->withErrors(['error' => 'Une erreur est survenue: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Page de confirmation après réservation (pour le client juste après avoir soumis).
+     */
+    public function confirmation(string $reference)
+    {
+        $booking = Booking::with(['vehicle.brand', 'vehicle.loueur'])
+            ->where('reference', $reference)
+            ->firstOrFail();
+
+        return view('front.pages.booking-confirmation', compact('booking'));
+    }
+
+    /**
+     * Page de confirmation client avec lien unique (envoyée par email après acceptation du loueur).
+     */
+    public function clientConfirmation(string $token)
+    {
+        $booking = Booking::with(['vehicle.brand', 'vehicle.category', 'loueur', 'pickupZone', 'returnZone'])
+            ->where('confirmation_token', $token)
+            ->firstOrFail();
+
+        // Récupérer les conditions de location du loueur
+        $rentalConditions = $booking->loueur ? $booking->loueur->getSetting('rental_conditions', []) : [];
+        $conditionsPdf = $booking->loueur ? $booking->loueur->getSetting('conditions_pdf', null) : null;
+
+        // Vérifier si des documents sont requis
+        $requireDocuments = $booking->loueur ? $booking->loueur->getSetting('require_documents', true) : true;
+
+        // Paramètres d'acompte
+        $depositRequired = $booking->loueur ? $booking->loueur->getSetting('deposit_required', false) : false;
+        $depositPaymentMethods = $booking->loueur ? $booking->loueur->getSetting('deposit_payment_methods', []) : [];
+
+        return view('front.pages.client-confirmation', compact(
+            'booking',
+            'rentalConditions',
+            'conditionsPdf',
+            'requireDocuments',
+            'depositRequired',
+            'depositPaymentMethods'
+        ));
+    }
+
+    /**
+     * Upload des documents client (CNI, permis).
+     */
+    public function uploadDocuments(Request $request, string $token)
+    {
+        $booking = Booking::where('confirmation_token', $token)->firstOrFail();
+
+        $request->validate([
+            'client_id_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'client_license_front' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'client_license_back' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $updates = [];
+
+        if ($request->hasFile('client_id_document')) {
+            $updates['client_id_document'] = $request->file('client_id_document')->store('bookings/documents', 'public');
+        }
+        if ($request->hasFile('client_license_front')) {
+            $updates['client_license_front'] = $request->file('client_license_front')->store('bookings/documents', 'public');
+        }
+        if ($request->hasFile('client_license_back')) {
+            $updates['client_license_back'] = $request->file('client_license_back')->store('bookings/documents', 'public');
+        }
+
+        if (!empty($updates)) {
+            $booking->update($updates);
+
+            // Notifier le loueur
+            $loueur = $booking->loueur;
+            if ($loueur) {
+                try {
+                    $loueur->notify(new \App\Notifications\ClientDocumentsUploadedNotification($booking));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to notify loueur about documents: ' . $e->getMessage());
+                }
+            }
+        }
+
+        return back()->with('success', 'Vos documents ont été téléchargés avec succès.');
+    }
+}
