@@ -12,6 +12,9 @@ Route::get('/vehicule/{slug}', [PublicSiteController::class, 'show'])->name('pub
 Route::get('/vehicule/{vehicle}/disponibilites', [PublicSiteController::class, 'availability'])->name('public.availability');
 Route::post('/reservation', [PublicSiteController::class, 'store'])->name('public.reserve');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');
+Route::get('/reservation/{reference}/payer', [PublicSiteController::class, 'payNow'])->name('public.pay');
+Route::get('/reservation/{reference}/paypal/retour', [PublicSiteController::class, 'paypalReturn'])->name('public.paypal.return');
+Route::get('/reservation/{reference}/paypal/annuler', [PublicSiteController::class, 'paypalCancel'])->name('public.paypal.cancel');
 
 // ---------------------------------------------------------------------------
 // Contrat de location PDF (accès réservé à l'équipe connectée)

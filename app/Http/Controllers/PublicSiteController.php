@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Option;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\PayPalService;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
@@ -160,12 +161,119 @@ class PublicSiteController extends Controller
     /** Page de confirmation. */
     public function confirmation(string $reference)
     {
+        $agency = Agency::current();
         $booking = Booking::with('vehicle')->where('reference', $reference)->firstOrFail();
+        $paypal = new PayPalService($agency);
+
+        $canPay = $paypal->isConfigured()
+            && $booking->advance_status !== 'paid'
+            && (float) $booking->advance_amount > 0;
 
         return view('public.confirmation', [
-            'agency' => Agency::current(),
+            'agency' => $agency,
             'booking' => $booking,
+            'canPay' => $canPay,
+            'payAmount' => $canPay ? $paypal->convertFromDa((float) $booking->advance_amount) : null,
+            'payCurrency' => $paypal->currency(),
         ]);
+    }
+
+    /** Lance le paiement de l'acompte via PayPal : crée la commande et redirige vers PayPal. */
+    public function payNow(string $reference)
+    {
+        $booking = Booking::where('reference', $reference)->firstOrFail();
+        $paypal = new PayPalService(Agency::current());
+
+        if (! $paypal->isConfigured()) {
+            return redirect()->route('public.confirmation', $reference)
+                ->with('pay_error', 'Le paiement en ligne n\'est pas disponible pour le moment.');
+        }
+
+        if ($booking->advance_status === 'paid' || (float) $booking->advance_amount <= 0) {
+            return redirect()->route('public.confirmation', $reference);
+        }
+
+        $amount = $paypal->convertFromDa((float) $booking->advance_amount);
+
+        $order = $paypal->createOrder(
+            $amount,
+            $booking->reference,
+            route('public.paypal.return', $reference),
+            route('public.paypal.cancel', $reference),
+        );
+
+        if (! $order || empty($order['approve_url'])) {
+            return redirect()->route('public.confirmation', $reference)
+                ->with('pay_error', 'Impossible de contacter PayPal. Réessayez plus tard.');
+        }
+
+        $booking->update(['paypal_order_id' => $order['id']]);
+
+        return redirect()->away($order['approve_url']);
+    }
+
+    /** Retour de PayPal après approbation : capture le paiement et confirme la réservation. */
+    public function paypalReturn(Request $request, string $reference)
+    {
+        $booking = Booking::where('reference', $reference)->firstOrFail();
+        $orderId = $request->query('token');
+        $paypal = new PayPalService(Agency::current());
+
+        if (! $orderId || $orderId !== $booking->paypal_order_id) {
+            return redirect()->route('public.confirmation', $reference)
+                ->with('pay_error', 'Paiement non reconnu.');
+        }
+
+        if ($booking->advance_status === 'paid') {
+            return redirect()->route('public.confirmation', $reference)->with('pay_success', true);
+        }
+
+        if (! $paypal->captureOrder($orderId)) {
+            return redirect()->route('public.confirmation', $reference)
+                ->with('pay_error', 'Le paiement n\'a pas pu être finalisé.');
+        }
+
+        $paid = (float) $booking->amount_paid + (float) $booking->advance_amount;
+        $remaining = max(0, (float) $booking->total_price - $paid);
+
+        $booking->update([
+            'advance_status' => 'paid',
+            'advance_paid_at' => now(),
+            'advance_payment_method' => 'paypal',
+            'advance_expires_at' => null,
+            'amount_paid' => $paid,
+            'amount_remaining' => $remaining,
+            'payment_status' => $remaining <= 0 ? 'paid' : 'partial',
+            'status' => 'confirmed',
+        ]);
+
+        $this->notifyAdvancePaid($booking);
+
+        return redirect()->route('public.confirmation', $reference)->with('pay_success', true);
+    }
+
+    /** Annulation du paiement PayPal. */
+    public function paypalCancel(string $reference)
+    {
+        return redirect()->route('public.confirmation', $reference)
+            ->with('pay_error', 'Paiement annulé. Votre demande reste en attente.');
+    }
+
+    /** Prévient l'agence qu'un acompte a été réglé en ligne. */
+    private function notifyAdvancePaid(Booking $booking): void
+    {
+        try {
+            $notif = Notification::make()
+                ->title('Acompte payé en ligne')
+                ->body("{$booking->reference} — acompte de " . number_format($booking->advance_amount, 0, ',', ' ') . ' DA réglé par PayPal. Réservation confirmée.')
+                ->success()
+                ->icon('heroicon-o-banknotes')
+                ->toDatabase();
+
+            User::all()->each(fn (User $user) => $user->notifyNow($notif));
+        } catch (\Throwable $e) {
+            Log::warning('Notification acompte échouée: ' . $e->getMessage());
+        }
     }
 
     /** Prévient l'agence d'une nouvelle demande (notification admin + email best-effort). */

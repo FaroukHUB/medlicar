@@ -51,6 +51,19 @@ class Parametres extends Page implements HasForms
                     Forms\Components\TextInput::make('advance_expiry_hours')->label('Expiration acompte (heures)')->numeric(),
                     Forms\Components\Textarea::make('contract_terms')->label('Conditions du contrat (CGV)')->columnSpanFull()->rows(5),
                 ]),
+                Forms\Components\Section::make('Paiement en ligne (PayPal)')
+                    ->description('Permet au client de régler son acompte en ligne. PayPal ne gère pas le dinar : indiquez la devise et le taux de conversion.')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\Toggle::make('paypal_enabled')->label('Activer le paiement PayPal')->columnSpanFull(),
+                        Forms\Components\Select::make('paypal_mode')->label('Mode')
+                            ->options(['sandbox' => 'Test (sandbox)', 'live' => 'Production (réel)'])->default('sandbox'),
+                        Forms\Components\Select::make('paypal_currency')->label('Devise PayPal')
+                            ->options(['EUR' => 'EUR', 'USD' => 'USD', 'GBP' => 'GBP'])->default('EUR'),
+                        Forms\Components\TextInput::make('paypal_rate')->label('Taux : 1 unité de devise = ? DA')
+                            ->numeric()->helperText('Ex : 150 si 1 EUR = 150 DA. L\'acompte en DA sera converti automatiquement.'),
+                        Forms\Components\TextInput::make('paypal_client_id')->label('Client ID')->password()->revealable(),
+                        Forms\Components\TextInput::make('paypal_secret')->label('Secret')->password()->revealable()->columnSpanFull(),
+                    ]),
                 Forms\Components\Section::make('Modules')
                     ->description('Active les services proposés par l\'agence. Désactivés = location classique uniquement.')
                     ->columns(2)->schema([
