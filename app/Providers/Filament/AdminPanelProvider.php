@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Réservations',
                 'Clients',
+                'Messagerie',
                 'Parc',
                 'Tarifs',
                 'Finances',
