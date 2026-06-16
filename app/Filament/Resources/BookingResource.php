@@ -95,7 +95,12 @@ class BookingResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->label('Statut')->options(self::STATUSES),
             ])
-            ->actions([Tables\Actions\EditAction::make()])
+            ->actions([
+                Tables\Actions\Action::make('contrat')->label('Contrat')->icon('heroicon-m-document-arrow-down')
+                    ->color('gray')->openUrlInNewTab()
+                    ->url(fn (Booking $record) => route('contract.preview', $record)),
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
             ]);

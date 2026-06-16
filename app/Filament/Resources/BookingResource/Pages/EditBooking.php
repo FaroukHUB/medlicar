@@ -13,6 +13,9 @@ class EditBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('contrat')->label('Télécharger le contrat')
+                ->icon('heroicon-m-document-arrow-down')->color('success')->openUrlInNewTab()
+                ->url(fn () => route('contract.download', $this->record)),
             Actions\DeleteAction::make(),
         ];
     }
