@@ -16,11 +16,18 @@ class Vehicle extends Model
         'features' => 'array',
         'has_ac' => 'boolean',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_on_promo' => 'boolean',
         'price_per_day' => 'decimal:2',
         'price_per_week' => 'decimal:2',
         'price_per_month' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
     ];
+
+    public function advantages()
+    {
+        return $this->belongsToMany(Advantage::class);
+    }
 
     public function brand()
     {

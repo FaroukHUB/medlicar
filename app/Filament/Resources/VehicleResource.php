@@ -119,6 +119,27 @@ class VehicleResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->label('Description')->columnSpanFull(),
                     ]),
+
+                Forms\Components\Section::make('Mise en avant & avantages')
+                    ->description('Pilote l\'affichage de ce véhicule sur le site public.')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Toggle::make('is_featured')
+                            ->label('Coup de cœur')
+                            ->helperText('Apparaît dans la section « Notre sélection ».'),
+                        Forms\Components\Toggle::make('is_on_promo')
+                            ->label('En promo')->live(),
+                        Forms\Components\TextInput::make('promo_label')
+                            ->label('Texte du badge promo')->placeholder('PROMO')
+                            ->visible(fn (Forms\Get $get) => $get('is_on_promo'))
+                            ->maxLength(20),
+                        Forms\Components\Select::make('advantages')
+                            ->label('Avantages affichés')
+                            ->relationship('advantages', 'name')
+                            ->multiple()->preload()
+                            ->helperText('Choisis dans ton catalogue d\'avantages (Site web → Avantages).')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 

@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\HeroSlide;
 use App\Models\Option;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -22,30 +23,28 @@ class PublicSiteController extends Controller
     /** Statuts qui occupent réellement un véhicule. */
     private const BLOCKING_STATUSES = ['pending', 'confirmed', 'active', 'returning'];
 
-    /** Accueil : catalogue des véhicules disponibles, avec filtres. */
-    public function index(Request $request)
+    /** Accueil : hero slider + sections (Notre sélection + par catégorie). */
+    public function index()
     {
-        $query = Vehicle::with(['brand', 'category'])
+        $vehicles = Vehicle::with(['brand', 'category', 'advantages'])
             ->where('is_active', true)
-            ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
-            ->when($request->filled('price_min'), fn ($q) => $q->where('price_per_day', '>=', $request->integer('price_min')))
-            ->when($request->filled('price_max'), fn ($q) => $q->where('price_per_day', '<=', $request->integer('price_max')))
-            ->orderBy('sort_order');
+            ->orderBy('sort_order')
+            ->get();
 
-        $vehicles = $query->get();
-
-        // Filtre par disponibilité sur une période (optionnel).
-        $start = $request->filled('start_date') ? Carbon::parse($request->date('start_date'))->startOfDay() : null;
-        $end = $request->filled('end_date') ? Carbon::parse($request->date('end_date'))->startOfDay() : null;
-        if ($start && $end && $end->gt($start)) {
-            $vehicles = $vehicles->filter(fn (Vehicle $v) => $v->isAvailableBetween($start, $end))->values();
+        // Sections par catégorie (uniquement celles qui ont des véhicules).
+        $sections = [];
+        foreach (Category::orderBy('name')->get() as $category) {
+            $list = $vehicles->where('category_id', $category->id)->values();
+            if ($list->isNotEmpty()) {
+                $sections[] = ['category' => $category, 'vehicles' => $list];
+            }
         }
 
         return view('public.index', [
             'agency' => Agency::current(),
-            'vehicles' => $vehicles,
-            'categories' => Category::orderBy('name')->get(),
-            'filters' => $request->only(['category_id', 'price_min', 'price_max', 'start_date', 'end_date']),
+            'heroSlides' => HeroSlide::where('is_active', true)->orderBy('sort_order')->get(),
+            'featured' => $vehicles->where('is_featured', true)->values(),
+            'sections' => $sections,
         ]);
     }
 
