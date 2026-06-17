@@ -55,6 +55,13 @@
         </div>
     @endif
 
+    @if($booking->client_token)
+        <a href="{{ route('public.documents', $booking->client_token) }}"
+           class="inline-block mt-6 mr-2 bg-brand-primary text-white font-semibold px-5 py-3 rounded-xl hover:bg-brand-primary-dark">
+            📄 Téléverser mes documents
+        </a>
+    @endif
+
     @if($agency->whatsapp)
         <a href="https://wa.me/{{ preg_replace('/\D/','',$agency->whatsapp) }}?text={{ urlencode('Bonjour, ma demande de réservation '.$booking->reference) }}"
            class="inline-block mt-6 bg-brand-primary text-white font-semibold px-5 py-3 rounded-xl hover:bg-brand-primary-dark">

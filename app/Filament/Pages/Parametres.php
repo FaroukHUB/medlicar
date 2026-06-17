@@ -115,6 +115,21 @@ class Parametres extends Page implements HasForms
                         Forms\Components\Toggle::make('require_terms')->label('Forcer l\'acceptation des conditions à la réservation')
                             ->helperText('Ajoute une case « J\'accepte les conditions » obligatoire.'),
                     ]),
+
+                Forms\Components\Section::make('Réservation : protection & horaires')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\TextInput::make('operating_hours_start')->label('Ouverture (heure)')->numeric()->default(8)->minValue(0)->maxValue(23),
+                        Forms\Components\TextInput::make('operating_hours_end')->label('Fermeture (heure)')->numeric()->default(20)->minValue(0)->maxValue(23),
+                        Forms\Components\Toggle::make('protection_enabled')->label('Proposer des plans de protection')->live()->columnSpanFull(),
+                        Forms\Components\TextInput::make('protection_percent')->label('Protection complète (% du prix)')->numeric()->default(50)
+                            ->visible(fn (Forms\Get $get) => $get('protection_enabled')),
+                        Forms\Components\Repeater::make('protection_basic_details')->label('Détails protection basique')
+                            ->simple(Forms\Components\TextInput::make('text')->required())
+                            ->visible(fn (Forms\Get $get) => $get('protection_enabled')),
+                        Forms\Components\Repeater::make('protection_complete_details')->label('Détails protection complète')
+                            ->simple(Forms\Components\TextInput::make('text')->required())
+                            ->visible(fn (Forms\Get $get) => $get('protection_enabled'))->columnSpanFull(),
+                    ]),
                 Forms\Components\Section::make('Paiement en ligne (PayPal)')
                     ->description('Permet au client de régler son acompte en ligne. PayPal ne gère pas le dinar : indiquez la devise et le taux de conversion.')
                     ->columns(2)->collapsed()->schema([

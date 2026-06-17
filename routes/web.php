@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 // ---------------------------------------------------------------------------
 Route::get('/', [PublicSiteController::class, 'index'])->name('public.home');
 Route::get('/vehicule/{slug}', [PublicSiteController::class, 'show'])->name('public.vehicle');
+Route::get('/vehicule/{slug}/reserver', [PublicSiteController::class, 'book'])->name('public.book');
+Route::post('/reservation/calcul', [PublicSiteController::class, 'calculatePrice'])->name('public.calculate');
+Route::get('/reservation/{token}/documents', [PublicSiteController::class, 'documents'])->name('public.documents');
+Route::post('/reservation/{token}/documents', [PublicSiteController::class, 'storeDocuments'])->name('public.documents.store');
 Route::get('/vehicule/{vehicle}/disponibilites', [PublicSiteController::class, 'availability'])->name('public.availability');
 Route::post('/reservation', [PublicSiteController::class, 'store'])->name('public.reserve');
 Route::get('/conditions', [PublicSiteController::class, 'terms'])->name('public.terms');

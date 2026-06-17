@@ -77,7 +77,7 @@
 
         {{-- Boutons --}}
         <div class="mt-5 flex gap-2 pt-1">
-            <a href="{{ route('public.vehicle', $vehicle->slug) }}"
+            <a href="{{ route('public.book', $vehicle->slug) }}"
                class="flex-1 rounded-xl bg-brand-secondary py-3 text-center text-sm font-bold text-white transition hover:bg-brand-secondary-dark">
                 Réserver
             </a>

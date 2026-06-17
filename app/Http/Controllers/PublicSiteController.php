@@ -13,6 +13,7 @@ use App\Models\HeroSlide;
 use App\Models\Option;
 use App\Models\Review;
 use App\Models\Stat;
+use App\Services\PricingService;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Services\PayPalService;
@@ -64,7 +65,7 @@ class PublicSiteController extends Controller
     /** Fiche véhicule avec sélecteur de dates et options. */
     public function show(string $slug)
     {
-        $vehicle = Vehicle::with(['brand', 'category'])
+        $vehicle = Vehicle::with(['brand', 'category', 'advantages'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
@@ -76,6 +77,128 @@ class PublicSiteController extends Controller
             'deliveryLocations' => DeliveryLocation::where('is_active', true)->orderBy('sort_order')->get(),
             'bookedRanges' => $this->bookedRanges($vehicle),
         ]);
+    }
+
+    /** Page de réservation dédiée (tunnel complet). */
+    public function book(string $slug)
+    {
+        $vehicle = Vehicle::with(['brand', 'category'])
+            ->where('slug', $slug)->where('is_active', true)->firstOrFail();
+
+        return view('public.book', [
+            'agency' => Agency::current(),
+            'vehicle' => $vehicle,
+            'options' => Option::where('is_active', true)->orderBy('sort_order')->get(),
+            'deliveryLocations' => DeliveryLocation::where('is_active', true)->orderBy('sort_order')->get(),
+            'bookedRanges' => $this->bookedRanges($vehicle),
+        ]);
+    }
+
+    /** Calcul de prix en direct (AJAX) — applique tarification dynamique, options, livraison, protection, retour. */
+    public function calculatePrice(Request $request)
+    {
+        $data = $request->validate([
+            'vehicle_id' => ['required', 'exists:vehicles,id'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time' => ['nullable', 'date_format:H:i'],
+            'options' => ['nullable', 'array'],
+            'pickup_location_id' => ['nullable', 'integer'],
+            'return_location_id' => ['nullable', 'integer'],
+            'protection_plan' => ['nullable', 'in:basic,complete'],
+            'return_fuel' => ['nullable', 'boolean'],
+            'return_wash' => ['nullable', 'boolean'],
+        ]);
+
+        $vehicle = Vehicle::findOrFail($data['vehicle_id']);
+        $start = Carbon::parse($data['start_date'] . ' ' . ($data['start_time'] ?? '09:00'));
+        $end = Carbon::parse($data['end_date'] . ' ' . ($data['end_time'] ?? '09:00'));
+        if ($end->lte($start)) {
+            return response()->json(['error' => 'Dates invalides'], 422);
+        }
+
+        $pickup = ! empty($data['pickup_location_id']) ? DeliveryLocation::find($data['pickup_location_id']) : null;
+        $return = ! empty($data['return_location_id']) ? DeliveryLocation::find($data['return_location_id']) : null;
+
+        $q = $this->computeQuote(
+            $vehicle, $start, $end, $data['options'] ?? [], $pickup, $return,
+            $data['protection_plan'] ?? 'basic', (bool) ($data['return_fuel'] ?? false), (bool) ($data['return_wash'] ?? false)
+        );
+        $q['available'] = $vehicle->isAvailableBetween($start, $end);
+
+        return response()->json($q);
+    }
+
+    /** Page sécurisée d'envoi des documents par le client (permis, CNI). */
+    public function documents(string $token)
+    {
+        $booking = Booking::with('customer', 'vehicle')->where('client_token', $token)->firstOrFail();
+
+        return view('public.documents', ['agency' => Agency::current(), 'booking' => $booking]);
+    }
+
+    /** Réception des documents client. */
+    public function storeDocuments(Request $request, string $token)
+    {
+        $booking = Booking::with('customer')->where('client_token', $token)->firstOrFail();
+
+        $data = $request->validate([
+            'license_front' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'license_back' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+            'id_document' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ]);
+
+        $customer = $booking->customer;
+        foreach (['license_front', 'license_back', 'id_document'] as $field) {
+            if ($request->hasFile($field)) {
+                $customer->{$field} = $request->file($field)->store('customers', 'public');
+            }
+        }
+        $customer->save();
+
+        return back()->with('docs_success', true);
+    }
+
+    /**
+     * Devis complet : prix dynamique + options + livraison + protection + frais de retour.
+     */
+    private function computeQuote(Vehicle $vehicle, Carbon $start, Carbon $end, array $optionIds, ?DeliveryLocation $pickup, ?DeliveryLocation $return, string $protectionPlan, bool $returnFuel, bool $returnWash): array
+    {
+        $pricing = (new PricingService)->quote($vehicle, $start, $end);
+        $days = $pricing['days'];
+
+        $optionsTotal = 0;
+        if (! empty($optionIds)) {
+            foreach (Option::whereIn('id', $optionIds)->where('is_active', true)->get() as $opt) {
+                $optionsTotal += $opt->price_type === 'per_day' ? (float) $opt->price * $days : (float) $opt->price;
+            }
+        }
+
+        $deliveryFee = ($pickup?->fee() ?? 0) + ($return && $return->id !== $pickup?->id ? $return->fee() : 0);
+
+        $agency = Agency::current();
+        $protectionFee = ($agency->protection_enabled && $protectionPlan === 'complete')
+            ? round($pricing['subtotal'] * (int) $agency->protection_percent / 100) : 0;
+
+        $returnFees = ($returnFuel ? (float) $vehicle->fuel_return_fee : 0)
+            + ($returnWash ? (float) $vehicle->wash_return_fee : 0);
+
+        $total = $pricing['subtotal'] + $optionsTotal + $deliveryFee + $protectionFee + $returnFees;
+
+        return [
+            'days' => $days,
+            'base_price' => $pricing['base_price'],
+            'season_surcharge' => $pricing['season_surcharge'],
+            'duration_discount' => $pricing['duration_discount'],
+            'subtotal' => $pricing['subtotal'],
+            'options_total' => round($optionsTotal, 2),
+            'delivery_fee' => round($deliveryFee, 2),
+            'protection_fee' => round($protectionFee, 2),
+            'return_fees' => round($returnFees, 2),
+            'total' => round($total, 2),
+            'rules' => $pricing['rules'],
+        ];
     }
 
     /** Page publique des conditions de location. */
@@ -109,6 +232,9 @@ class PublicSiteController extends Controller
             'return_location_id' => ['nullable', 'exists:delivery_locations,id'],
             'options' => ['nullable', 'array'],
             'options.*' => ['integer', 'exists:options,id'],
+            'protection_plan' => ['nullable', 'in:basic,complete'],
+            'return_fuel' => ['nullable', 'boolean'],
+            'return_wash' => ['nullable', 'boolean'],
             'message' => ['nullable', 'string', 'max:1000'],
             'accept_terms' => [$agency->require_terms ? 'accepted' : 'nullable'],
         ], [
@@ -145,53 +271,49 @@ class PublicSiteController extends Controller
             ]);
         }
 
-        $days = max(1, (int) ceil($start->floatDiffInDays($end)));
-        $base = $days * (float) $vehicle->price_per_day;
-
-        // Options choisies (par jour ou forfait).
         $optionIds = $data['options'] ?? [];
-        $optionsTotal = 0;
-        if (! empty($optionIds)) {
-            foreach (Option::whereIn('id', $optionIds)->where('is_active', true)->get() as $opt) {
-                $optionsTotal += $opt->price_type === 'per_day' ? (float) $opt->price * $days : (float) $opt->price;
-            }
-        }
-
-        // Frais de livraison selon les lieux choisis (uniquement actifs).
         $pickup = ! empty($data['pickup_location_id'])
             ? DeliveryLocation::where('is_active', true)->find($data['pickup_location_id']) : null;
         $return = ! empty($data['return_location_id'])
             ? DeliveryLocation::where('is_active', true)->find($data['return_location_id']) : null;
+        $protectionPlan = $data['protection_plan'] ?? 'basic';
 
-        $deliveryFee = ($pickup?->fee() ?? 0)
-            + ($return && $return->id !== $pickup?->id ? $return->fee() : 0);
+        $q = $this->computeQuote(
+            $vehicle, $start, $end, $optionIds, $pickup, $return,
+            $protectionPlan, (bool) ($data['return_fuel'] ?? false), (bool) ($data['return_wash'] ?? false)
+        );
 
-        $total = $base + $optionsTotal + $deliveryFee;
         $advancePct = (float) ($agency->default_advance_percent ?? 0);
 
         $booking = Booking::create([
             'reference' => Booking::generateReference(),
+            'client_token' => \Illuminate\Support\Str::random(48),
             'vehicle_id' => $vehicle->id,
             'customer_id' => $customer->id,
             'start_date' => $start,
             'end_date' => $end,
-            'total_days' => $days,
-            'base_price' => $base,
+            'total_days' => $q['days'],
+            'base_price' => $q['base_price'],
+            'season_surcharge' => $q['season_surcharge'],
+            'duration_discount' => $q['duration_discount'],
             'selected_options' => array_map('intval', $optionIds),
-            'options_total' => $optionsTotal,
-            'delivery_fee' => $deliveryFee,
+            'options_total' => $q['options_total'],
+            'protection_plan' => $protectionPlan,
+            'protection_fee' => $q['protection_fee'],
+            'extra_fees' => $q['return_fees'],
+            'delivery_fee' => $q['delivery_fee'],
             'pickup_location_id' => $pickup?->id,
             'return_location_id' => $return?->id,
             'pickup_location' => $pickup?->name,
             'return_location' => $return?->name,
             'discount_amount' => 0,
-            'total_price' => $total,
+            'total_price' => $q['total'],
             'deposit_amount' => (float) $vehicle->deposit_amount,
-            'advance_amount' => round($total * $advancePct / 100),
+            'advance_amount' => round($q['total'] * $advancePct / 100),
             'advance_status' => 'pending',
             'payment_status' => 'pending',
             'deposit_status' => 'pending',
-            'amount_remaining' => $total,
+            'amount_remaining' => $q['total'],
             'status' => 'pending',
             'source' => 'website',
             'advance_expires_at' => now()->addHours((int) ($agency->advance_expiry_hours ?? 48)),

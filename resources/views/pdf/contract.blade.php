@@ -104,6 +104,15 @@
         @if((float) $booking->options_total > 0)
         <tr><td>Options / extras</td><td class="r">{{ $fmt($booking->options_total) }}</td></tr>
         @endif
+        @if($booking->protection_plan === 'complete' && (float) $booking->protection_fee > 0)
+        <tr><td>Protection complète</td><td class="r">{{ $fmt($booking->protection_fee) }}</td></tr>
+        @endif
+        @if((float) $booking->extra_fees > 0)
+        <tr><td>Frais de retour</td><td class="r">{{ $fmt($booking->extra_fees) }}</td></tr>
+        @endif
+        @if((float) $booking->season_surcharge > 0)
+        <tr><td>Supplément saison</td><td class="r">{{ $fmt($booking->season_surcharge) }}</td></tr>
+        @endif
         @if((float) $booking->delivery_fee > 0)
         <tr><td>Frais de livraison</td><td class="r">{{ $fmt($booking->delivery_fee) }}</td></tr>
         @endif

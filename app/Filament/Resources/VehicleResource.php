@@ -86,6 +86,10 @@ class VehicleResource extends Resource
                             ->label('Prix / mois')->numeric()->suffix('DA'),
                         Forms\Components\TextInput::make('deposit_amount')
                             ->label('Caution')->numeric()->default(0)->suffix('DA'),
+                        Forms\Components\TextInput::make('fuel_return_fee')
+                            ->label('Frais retour sans plein')->numeric()->default(0)->suffix('DA'),
+                        Forms\Components\TextInput::make('wash_return_fee')
+                            ->label('Frais retour sans lavage')->numeric()->default(0)->suffix('DA'),
                     ]),
 
                 Forms\Components\Section::make('Caractéristiques')
