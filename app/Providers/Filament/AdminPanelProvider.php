@@ -27,9 +27,16 @@ class AdminPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->brandName(fn () => \App\Models\Agency::current()->name)
-            // Logo de l'agence : dépose le fichier dans public/images/logo.png
-            // (s'affichera automatiquement ; sinon le nom de l'agence est utilisé).
-            ->brandLogo(fn () => file_exists(public_path('images/logo.png')) ? asset('images/logo.png') : null)
+            // Logo : téléverse-le dans Paramètres → Logo (il s'affiche ici automatiquement).
+            // Repli possible sur public/images/logo.png si aucun logo n'est défini.
+            ->brandLogo(function () {
+                $logo = \App\Models\Agency::current()->logo;
+                if ($logo) {
+                    return \Illuminate\Support\Facades\Storage::url($logo);
+                }
+
+                return file_exists(public_path('images/logo.png')) ? asset('images/logo.png') : null;
+            })
             ->brandLogoHeight('2.5rem')
             ->favicon(fn () => file_exists(public_path('images/favicon.png')) ? asset('images/favicon.png') : null)
             ->login()
