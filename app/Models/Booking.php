@@ -35,6 +35,16 @@ class Booking extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function pickupLocation()
+    {
+        return $this->belongsTo(DeliveryLocation::class, 'pickup_location_id');
+    }
+
+    public function returnLocation()
+    {
+        return $this->belongsTo(DeliveryLocation::class, 'return_location_id');
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

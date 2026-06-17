@@ -72,8 +72,20 @@ class BookingResource extends Resource
         }
         $set('options_total', $optTotal);
 
+        // Frais de livraison selon les lieux choisis.
+        $deliv = 0;
+        $pid = $get('pickup_location_id');
+        $rid = $get('return_location_id');
+        if ($pid && $p = \App\Models\DeliveryLocation::find($pid)) {
+            $deliv += $p->fee();
+        }
+        if ($rid && $rid != $pid && $r = \App\Models\DeliveryLocation::find($rid)) {
+            $deliv += $r->fee();
+        }
+        $set('delivery_fee', $deliv);
+
         $discount = (float) $get('discount_amount');
-        $total = max(0, $base + $optTotal - $discount);
+        $total = max(0, $base + $optTotal + $deliv - $discount);
         $set('total_price', $total);
 
         $pct = (float) (Agency::current()->default_advance_percent ?? 0);
@@ -129,6 +141,17 @@ class BookingResource extends Resource
                         };
                     }),
                 Forms\Components\TextInput::make('total_days')->label('Nombre de jours')->numeric()->readOnly(),
+            ]),
+
+            Forms\Components\Section::make('Livraison')->columns(2)->schema([
+                Forms\Components\Select::make('pickup_location_id')->label('Lieu de prise en charge')
+                    ->relationship('pickupLocation', 'name')->searchable()->preload()
+                    ->live()->afterStateUpdated($recalc),
+                Forms\Components\Select::make('return_location_id')->label('Lieu de retour')
+                    ->relationship('returnLocation', 'name')->searchable()->preload()
+                    ->live()->afterStateUpdated($recalc),
+                Forms\Components\TextInput::make('delivery_fee')->label('Frais de livraison')->numeric()->readOnly()->suffix('DA'),
+                Forms\Components\TextInput::make('flight_number')->label('N° de vol (optionnel)'),
             ]),
 
             Forms\Components\Section::make('Tarification')->columns(2)->schema([

@@ -101,8 +101,20 @@ class Parametres extends Page implements HasForms
                         ->numeric()->placeholder('180')
                         ->helperText('Ex : 180 si 1 € = 180 DA.')
                         ->visible(fn (Forms\Get $get) => $get('show_eur')),
-                    Forms\Components\Textarea::make('contract_terms')->label('Conditions du contrat (CGV)')->columnSpanFull()->rows(5),
                 ]),
+
+                Forms\Components\Section::make('Conditions de location')
+                    ->description('Affichées sur le site et reprises dans le contrat PDF.')
+                    ->schema([
+                        Forms\Components\RichEditor::make('contract_terms')->label('Conditions (texte)')
+                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'h2', 'h3', 'link', 'undo', 'redo'])
+                            ->columnSpanFull(),
+                        Forms\Components\FileUpload::make('terms_pdf')->label('Conditions en PDF (optionnel)')
+                            ->acceptedFileTypes(['application/pdf'])->directory('agency')
+                            ->helperText('Le client pourra télécharger ce PDF.'),
+                        Forms\Components\Toggle::make('require_terms')->label('Forcer l\'acceptation des conditions à la réservation')
+                            ->helperText('Ajoute une case « J\'accepte les conditions » obligatoire.'),
+                    ]),
                 Forms\Components\Section::make('Paiement en ligne (PayPal)')
                     ->description('Permet au client de régler son acompte en ligne. PayPal ne gère pas le dinar : indiquez la devise et le taux de conversion.')
                     ->columns(2)->collapsed()->schema([

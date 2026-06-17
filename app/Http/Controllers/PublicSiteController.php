@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\DeliveryLocation;
 use App\Models\FaqItem;
 use App\Models\Feature;
 use App\Models\HeroSlide;
@@ -72,8 +73,15 @@ class PublicSiteController extends Controller
             'agency' => Agency::current(),
             'vehicle' => $vehicle,
             'options' => Option::where('is_active', true)->orderBy('sort_order')->get(),
+            'deliveryLocations' => DeliveryLocation::where('is_active', true)->orderBy('sort_order')->get(),
             'bookedRanges' => $this->bookedRanges($vehicle),
         ]);
+    }
+
+    /** Page publique des conditions de location. */
+    public function terms()
+    {
+        return view('public.terms', ['agency' => Agency::current()]);
     }
 
     /** JSON des plages indisponibles (réservations + entretiens) pour le calendrier. */
@@ -85,6 +93,8 @@ class PublicSiteController extends Controller
     /** Enregistre une demande de réservation depuis le site public. */
     public function store(Request $request)
     {
+        $agency = Agency::current();
+
         $data = Validator::make($request->all(), [
             'vehicle_id' => ['required', 'exists:vehicles,id'],
             'first_name' => ['required', 'string', 'max:100'],
@@ -92,15 +102,26 @@ class PublicSiteController extends Controller
             'phone' => ['required', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:150'],
             'start_date' => ['required', 'date', 'after_or_equal:today'],
-            'end_date' => ['required', 'date', 'after:start_date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time' => ['nullable', 'date_format:H:i'],
+            'pickup_location_id' => ['nullable', 'exists:delivery_locations,id'],
+            'return_location_id' => ['nullable', 'exists:delivery_locations,id'],
             'options' => ['nullable', 'array'],
             'options.*' => ['integer', 'exists:options,id'],
             'message' => ['nullable', 'string', 'max:1000'],
+            'accept_terms' => [$agency->require_terms ? 'accepted' : 'nullable'],
+        ], [
+            'accept_terms.accepted' => 'Vous devez accepter les conditions de location.',
         ])->validate();
 
         $vehicle = Vehicle::where('is_active', true)->findOrFail($data['vehicle_id']);
-        $start = Carbon::parse($data['start_date'])->startOfDay();
-        $end = Carbon::parse($data['end_date'])->startOfDay();
+        $start = Carbon::parse($data['start_date'] . ' ' . ($data['start_time'] ?? '09:00'));
+        $end = Carbon::parse($data['end_date'] . ' ' . ($data['end_time'] ?? '09:00'));
+
+        if ($end->lte($start)) {
+            return back()->withInput()->withErrors(['end_date' => 'La date/heure de retour doit être après le départ.']);
+        }
 
         // Re-vérification serveur anti double-réservation (le calendrier client ne suffit pas).
         if (! $vehicle->isAvailableBetween($start, $end)) {
@@ -136,8 +157,16 @@ class PublicSiteController extends Controller
             }
         }
 
-        $total = $base + $optionsTotal;
-        $agency = Agency::current();
+        // Frais de livraison selon les lieux choisis (uniquement actifs).
+        $pickup = ! empty($data['pickup_location_id'])
+            ? DeliveryLocation::where('is_active', true)->find($data['pickup_location_id']) : null;
+        $return = ! empty($data['return_location_id'])
+            ? DeliveryLocation::where('is_active', true)->find($data['return_location_id']) : null;
+
+        $deliveryFee = ($pickup?->fee() ?? 0)
+            + ($return && $return->id !== $pickup?->id ? $return->fee() : 0);
+
+        $total = $base + $optionsTotal + $deliveryFee;
         $advancePct = (float) ($agency->default_advance_percent ?? 0);
 
         $booking = Booking::create([
@@ -150,6 +179,11 @@ class PublicSiteController extends Controller
             'base_price' => $base,
             'selected_options' => array_map('intval', $optionIds),
             'options_total' => $optionsTotal,
+            'delivery_fee' => $deliveryFee,
+            'pickup_location_id' => $pickup?->id,
+            'return_location_id' => $return?->id,
+            'pickup_location' => $pickup?->name,
+            'return_location' => $return?->name,
             'discount_amount' => 0,
             'total_price' => $total,
             'deposit_amount' => (float) $vehicle->deposit_amount,

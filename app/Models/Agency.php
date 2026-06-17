@@ -27,6 +27,7 @@ class Agency extends Model
         'section_stats' => 'boolean',
         'section_faq' => 'boolean',
         'section_contact' => 'boolean',
+        'require_terms' => 'boolean',
     ];
 
     /** Couleur primaire (boutons, en-têtes) avec repli. */

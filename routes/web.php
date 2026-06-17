@@ -11,6 +11,7 @@ Route::get('/', [PublicSiteController::class, 'index'])->name('public.home');
 Route::get('/vehicule/{slug}', [PublicSiteController::class, 'show'])->name('public.vehicle');
 Route::get('/vehicule/{vehicle}/disponibilites', [PublicSiteController::class, 'availability'])->name('public.availability');
 Route::post('/reservation', [PublicSiteController::class, 'store'])->name('public.reserve');
+Route::get('/conditions', [PublicSiteController::class, 'terms'])->name('public.terms');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');
 Route::get('/reservation/{reference}/payer', [PublicSiteController::class, 'payNow'])->name('public.pay');
 Route::get('/reservation/{reference}/paypal/retour', [PublicSiteController::class, 'paypalReturn'])->name('public.paypal.return');

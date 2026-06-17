@@ -1,3 +1,4 @@
+@php $primary = $agency->colorPrimary(); @endphp
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,14 +7,14 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; line-height: 1.4; color: #1f2937; padding: 28px; }
-        .header { display: table; width: 100%; border-bottom: 3px solid #006233; padding-bottom: 12px; margin-bottom: 18px; }
+        .header { display: table; width: 100%; border-bottom: 3px solid {{ $primary }}; padding-bottom: 12px; margin-bottom: 18px; }
         .header .brand { display: table-cell; vertical-align: middle; }
-        .header .brand h1 { font-size: 20px; color: #006233; }
+        .header .brand h1 { font-size: 20px; color: {{ $primary }}; }
         .header .brand .sub { font-size: 10px; color: #6b7280; }
         .header .meta { display: table-cell; text-align: right; vertical-align: middle; font-size: 10px; color: #374151; }
         .header .meta .ref { font-size: 13px; font-weight: bold; color: #111827; }
         h2.title { text-align: center; font-size: 14px; margin: 6px 0 16px; text-transform: uppercase; letter-spacing: .5px; }
-        .section-title { background: #006233; color: #fff; padding: 6px 10px; font-size: 11px; font-weight: bold; margin: 14px 0 8px; }
+        .section-title { background: {{ $primary }}; color: #fff; padding: 6px 10px; font-size: 11px; font-weight: bold; margin: 14px 0 8px; }
         table { width: 100%; border-collapse: collapse; }
         .info td { padding: 4px 6px; vertical-align: top; }
         .info td.label { color: #6b7280; width: 28%; }
@@ -24,13 +25,13 @@
         .money { width: 100%; }
         .money td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; }
         .money td.r { text-align: right; }
-        .money tr.total td { border-top: 2px solid #006233; border-bottom: none; font-size: 13px; font-weight: bold; color: #006233; }
-        .terms { font-size: 9.5px; color: #4b5563; white-space: pre-line; border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px; }
+        .money tr.total td { border-top: 2px solid {{ $primary }}; border-bottom: none; font-size: 13px; font-weight: bold; color: {{ $primary }}; }
+        .terms { font-size: 9.5px; color: #4b5563; border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px; }
         .signatures { display: table; width: 100%; margin-top: 30px; }
         .sig { display: table-cell; width: 50%; text-align: center; padding-top: 40px; }
         .sig .line { border-top: 1px solid #9ca3af; margin: 0 20px; padding-top: 4px; font-size: 10px; color: #6b7280; }
         .footer { margin-top: 24px; text-align: center; font-size: 9px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 8px; }
-        .badge { display: inline-block; background: #ecfdf5; color: #006233; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
+        .badge { display: inline-block; background: #ecfdf5; color: {{ $primary }}; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -121,7 +122,7 @@
 
     @if($agency->contract_terms)
     <div class="section-title">Conditions générales</div>
-    <div class="terms">{{ $agency->contract_terms }}</div>
+    <div class="terms">{!! $agency->contract_terms !!}</div>
     @endif
 
     <div class="signatures">
