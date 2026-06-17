@@ -133,10 +133,18 @@ class VehicleResource extends Resource
                             ->helperText('Apparaît dans la section « Notre sélection ».'),
                         Forms\Components\Toggle::make('is_on_promo')
                             ->label('En promo')->live(),
+                        Forms\Components\TextInput::make('promo_discount_percent')
+                            ->label('Réduction (%)')->numeric()->minValue(1)->maxValue(90)->suffix('%')
+                            ->helperText('Le prix barré et le badge -X% sont générés automatiquement.')
+                            ->visible(fn (Forms\Get $get) => $get('is_on_promo')),
                         Forms\Components\TextInput::make('promo_label')
-                            ->label('Texte du badge promo')->placeholder('PROMO')
+                            ->label('Badge personnalisé (optionnel)')->placeholder('ex : HOT OFFER')
                             ->visible(fn (Forms\Get $get) => $get('is_on_promo'))
                             ->maxLength(20),
+                        Forms\Components\DatePicker::make('promo_start')->label('Promo du (optionnel)')
+                            ->visible(fn (Forms\Get $get) => $get('is_on_promo')),
+                        Forms\Components\DatePicker::make('promo_end')->label('Promo au (optionnel)')
+                            ->visible(fn (Forms\Get $get) => $get('is_on_promo')),
                         Forms\Components\Select::make('advantages')
                             ->label('Avantages affichés')
                             ->relationship('advantages', 'name')

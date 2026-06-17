@@ -61,14 +61,16 @@
 
         {{-- Bloc prix + CTA --}}
         <div>
+            @php $onPromo = $vehicle->isOnPromoNow(); $promoPrice = $vehicle->promoPrice(); @endphp
             <div class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-sm p-5 sticky top-4">
-                @if($vehicle->is_on_promo)
-                    <span class="inline-block mb-3 rounded-lg bg-brand-secondary px-3 py-1 text-sm font-bold text-white">{{ $vehicle->promo_label ?: 'PROMO' }}</span>
+                @if($onPromo)
+                    <span class="inline-block mb-3 rounded-lg bg-brand-secondary px-3 py-1 text-sm font-bold text-white">{{ $vehicle->promoBadge() }}</span>
                 @endif
                 <div class="flex items-end justify-between border-b pb-4">
                     <div>
-                        <span class="text-3xl font-extrabold text-brand-primary">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
-                        @if($agency->toEur($vehicle->price_per_day))<span class="text-base font-semibold text-gray-400">/ {{ $agency->toEur($vehicle->price_per_day) }} €</span>@endif
+                        @if($onPromo)<span class="block text-sm text-gray-400 line-through">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>@endif
+                        <span class="text-3xl font-extrabold text-brand-primary">{{ number_format($promoPrice, 0, ',', ' ') }} DA</span>
+                        @if($agency->toEur($promoPrice))<span class="text-base font-semibold text-gray-400">/ {{ $agency->toEur($promoPrice) }} €</span>@endif
                         <span class="text-gray-500">/ jour</span>
                     </div>
                     @if($vehicle->deposit_amount)

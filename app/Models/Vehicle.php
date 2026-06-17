@@ -29,6 +29,43 @@ class Vehicle extends Model
         return $this->belongsToMany(Advantage::class);
     }
 
+    /** Promo active aujourd'hui ? (toggle + période éventuelle). */
+    public function isOnPromoNow(): bool
+    {
+        if (! $this->is_on_promo) {
+            return false;
+        }
+        $today = now()->startOfDay();
+        if ($this->promo_start && $today->lt(\Carbon\Carbon::parse($this->promo_start))) {
+            return false;
+        }
+        if ($this->promo_end && $today->gt(\Carbon\Carbon::parse($this->promo_end))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** Prix/jour après promo (ou prix normal). */
+    public function promoPrice(): float
+    {
+        if ($this->isOnPromoNow() && $this->promo_discount_percent) {
+            return round((float) $this->price_per_day * (1 - $this->promo_discount_percent / 100));
+        }
+
+        return (float) $this->price_per_day;
+    }
+
+    /** Libellé du badge promo. */
+    public function promoBadge(): ?string
+    {
+        if (! $this->isOnPromoNow()) {
+            return null;
+        }
+
+        return $this->promo_label ?: ($this->promo_discount_percent ? '-' . $this->promo_discount_percent . '%' : 'PROMO');
+    }
+
     public function brand()
     {
         return $this->belongsTo(Brand::class);

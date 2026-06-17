@@ -26,7 +26,7 @@ class PricingService
             $days = 1;
         }
 
-        $daily = (float) $vehicle->price_per_day;
+        $daily = $vehicle->promoPrice(); // applique la promo éventuelle
         $plainBase = $days * $daily;
 
         // 1) Tarifs saisonniers : prix/jour spécifique jour par jour.

@@ -2,12 +2,14 @@
     $transmissions = ['automatic' => 'Automatique', 'manual' => 'Manuelle'];
     $wa = $agency->whatsapp ? preg_replace('/\D/', '', $agency->whatsapp) : null;
     $advantages = $vehicle->advantages->where('is_active', true);
+    $onPromo = $vehicle->isOnPromoNow();
+    $promoPrice = $vehicle->promoPrice();
 @endphp
 <div class="group relative flex flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-gray-100 shadow-sm transition hover:shadow-xl">
     {{-- Ruban promo --}}
-    @if($vehicle->is_on_promo)
+    @if($onPromo)
         <div class="absolute right-0 top-5 z-10 rounded-l-lg bg-brand-secondary px-4 py-1.5 text-sm font-bold text-white shadow-md">
-            {{ $vehicle->promo_label ?: 'PROMO' }}
+            {{ $vehicle->promoBadge() }}
         </div>
     @endif
 
@@ -46,9 +48,12 @@
         </div>
 
         {{-- Prix --}}
-        @php $eurDay = $agency->toEur($vehicle->price_per_day); @endphp
+        @php $eurDay = $agency->toEur($promoPrice); @endphp
         <div class="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
-            <span class="text-2xl font-extrabold text-brand-primary">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+            @if($onPromo)
+                <span class="text-sm text-gray-400 line-through">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+            @endif
+            <span class="text-2xl font-extrabold text-brand-primary">{{ number_format($promoPrice, 0, ',', ' ') }} DA</span>
             @if($eurDay)<span class="text-base font-semibold text-gray-400">/ {{ $eurDay }} €</span>@endif
             <span class="text-sm text-gray-500">/ jour</span>
             @if($vehicle->price_per_week || $vehicle->price_per_month)
