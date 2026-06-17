@@ -36,7 +36,7 @@
         </div>
         <div class="flex justify-between py-2">
             <span class="text-gray-500">Total estimé</span>
-            <span class="font-bold">{{ number_format($booking->total_price, 0, ',', ' ') }} DA</span>
+            <span class="font-bold">{{ number_format($booking->total_price, 0, ',', ' ') }} DA{{ $agency->toEur($booking->total_price) ? ' / '.$agency->toEur($booking->total_price).' €' : '' }}</span>
         </div>
     </div>
 

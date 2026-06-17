@@ -49,6 +49,12 @@ class Parametres extends Page implements HasForms
                     Forms\Components\TextInput::make('vat_rate')->label('Taux de TVA (%)')->numeric(),
                     Forms\Components\TextInput::make('default_advance_percent')->label('Acompte par défaut (%)')->numeric(),
                     Forms\Components\TextInput::make('advance_expiry_hours')->label('Expiration acompte (heures)')->numeric(),
+                    Forms\Components\Toggle::make('show_eur')->label('Afficher aussi les prix en euros (€)')
+                        ->helperText('Pratique pour la diaspora. Ex : 9 000 DA / 50 €.')->live(),
+                    Forms\Components\TextInput::make('eur_rate')->label('Taux : 1 € = ? DA')
+                        ->numeric()->placeholder('180')
+                        ->helperText('Ex : 180 si 1 € = 180 DA.')
+                        ->visible(fn (Forms\Get $get) => $get('show_eur')),
                     Forms\Components\Textarea::make('contract_terms')->label('Conditions du contrat (CGV)')->columnSpanFull()->rows(5),
                 ]),
                 Forms\Components\Section::make('Paiement en ligne (PayPal)')

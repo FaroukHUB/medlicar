@@ -46,13 +46,19 @@
         </div>
 
         {{-- Prix --}}
+        @php $eurDay = $agency->toEur($vehicle->price_per_day); @endphp
         <div class="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
             <span class="text-2xl font-extrabold text-dz-green">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+            @if($eurDay)<span class="text-base font-semibold text-gray-400">/ {{ $eurDay }} €</span>@endif
             <span class="text-sm text-gray-500">/ jour</span>
             @if($vehicle->price_per_week || $vehicle->price_per_month)
                 <div class="mt-1 text-xs text-gray-400">
-                    @if($vehicle->price_per_week) Semaine : {{ number_format($vehicle->price_per_week, 0, ',', ' ') }} DA @endif
-                    @if($vehicle->price_per_month) · Mois : {{ number_format($vehicle->price_per_month, 0, ',', ' ') }} DA @endif
+                    @if($vehicle->price_per_week)
+                        Semaine : {{ number_format($vehicle->price_per_week, 0, ',', ' ') }} DA @if($agency->toEur($vehicle->price_per_week))/ {{ $agency->toEur($vehicle->price_per_week) }} €@endif
+                    @endif
+                    @if($vehicle->price_per_month)
+                        · Mois : {{ number_format($vehicle->price_per_month, 0, ',', ' ') }} DA @if($agency->toEur($vehicle->price_per_month))/ {{ $agency->toEur($vehicle->price_per_month) }} €@endif
+                    @endif
                 </div>
             @endif
         </div>

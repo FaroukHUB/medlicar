@@ -54,10 +54,11 @@
                 <div class="flex items-end justify-between border-b pb-4">
                     <div>
                         <span class="text-2xl font-bold text-dz-green">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+                        @if($agency->toEur($vehicle->price_per_day))<span class="text-base font-semibold text-gray-400">/ {{ $agency->toEur($vehicle->price_per_day) }} €</span>@endif
                         <span class="text-gray-500">/ jour</span>
                     </div>
                     @if($vehicle->deposit_amount)
-                        <div class="text-right text-xs text-gray-500">Caution<br><span class="font-medium text-gray-700">{{ number_format($vehicle->deposit_amount, 0, ',', ' ') }} DA</span></div>
+                        <div class="text-right text-xs text-gray-500">Caution<br><span class="font-medium text-gray-700">{{ number_format($vehicle->deposit_amount, 0, ',', ' ') }} DA{{ $agency->toEur($vehicle->deposit_amount) ? ' / '.$agency->toEur($vehicle->deposit_amount).' €' : '' }}</span></div>
                     @endif
                 </div>
 
@@ -130,6 +131,7 @@
 @push('scripts')
 <script>
     const pricePerDay = {{ (float) $vehicle->price_per_day }};
+    const eurRate = {{ (float) ($agency->showsEur() ? $agency->eur_rate : 0) }};
     const bookedRanges = @json($bookedRanges);
 
     const startEl = document.getElementById('start_date');
@@ -143,6 +145,7 @@
 
     let currentDays = 0;
     function fmt(n){ return new Intl.NumberFormat('fr-FR').format(n) + ' DA'; }
+    function fmtFull(n){ return eurRate > 0 ? fmt(n) + ' / ' + Math.round(n / eurRate) + ' €' : fmt(n); }
 
     function recalc() {
         if (currentDays < 1) { priceBox.classList.add('hidden'); return; }
@@ -156,7 +159,7 @@
         priceBase.textContent = fmt(base);
         if (opt > 0) { priceOptions.textContent = fmt(opt); priceOptionsRow.classList.remove('hidden'); }
         else { priceOptionsRow.classList.add('hidden'); }
-        priceTotal.textContent = fmt(base + opt);
+        priceTotal.textContent = fmtFull(base + opt);
         priceBox.classList.remove('hidden');
     }
 

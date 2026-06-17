@@ -19,11 +19,29 @@ class Agency extends Model
         'default_advance_percent' => 'decimal:2',
         'delivery_enabled' => 'boolean',
         'transfer_enabled' => 'boolean',
+        'show_eur' => 'boolean',
+        'eur_rate' => 'decimal:2',
     ];
 
     /** Récupère (et met en cache) l'agence unique. */
     public static function current(): self
     {
         return static::query()->firstOrCreate(['id' => 1], ['name' => 'Medlicar']);
+    }
+
+    /** L'affichage en euros est-il actif et configuré ? */
+    public function showsEur(): bool
+    {
+        return (bool) $this->show_eur && (float) $this->eur_rate > 0;
+    }
+
+    /** Convertit un montant en DA vers l'euro (arrondi entier), ou null si non configuré. */
+    public function toEur($amountDa): ?int
+    {
+        if (! $this->showsEur()) {
+            return null;
+        }
+
+        return (int) round((float) $amountDa / (float) $this->eur_rate);
     }
 }
