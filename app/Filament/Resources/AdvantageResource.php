@@ -15,11 +15,11 @@ class AdvantageResource extends Resource
     protected static ?string $model = Advantage::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-check-badge';
-    protected static ?string $navigationGroup = 'Site web';
+    protected static ?string $navigationGroup = 'Marketing';
     protected static ?string $navigationLabel = 'Avantages';
     protected static ?string $modelLabel = 'avantage';
     protected static ?string $pluralModelLabel = 'Avantages';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     /** Icônes proposées (heroicons) pour les avantages. */
     public const ICONS = [
