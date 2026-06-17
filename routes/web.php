@@ -18,6 +18,9 @@ Route::post('/reservation', [PublicSiteController::class, 'store'])->name('publi
 Route::get('/conditions', [PublicSiteController::class, 'terms'])->name('public.terms');
 Route::get('/blog', [PublicSiteController::class, 'blogIndex'])->name('public.blog');
 Route::get('/blog/{slug}', [PublicSiteController::class, 'blogShow'])->name('public.blog.show');
+Route::post('/newsletter', [PublicSiteController::class, 'subscribeNewsletter'])->name('public.newsletter');
+Route::get('/sitemap.xml', [PublicSiteController::class, 'sitemap'])->name('public.sitemap');
+Route::get('/page/{slug}', [PublicSiteController::class, 'page'])->name('public.page');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');
 Route::get('/reservation/{reference}/payer', [PublicSiteController::class, 'payNow'])->name('public.pay');
 Route::get('/reservation/{reference}/paypal/retour', [PublicSiteController::class, 'paypalReturn'])->name('public.paypal.return');

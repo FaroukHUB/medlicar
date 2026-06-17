@@ -70,11 +70,33 @@
     <main class="flex-1">@yield('content')</main>
 
     <footer class="bg-brand-primary-dark text-white/80 mt-12">
+        @if($agency->newsletter_enabled)
+            <div class="border-b border-white/10">
+                <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-white font-semibold">📬 Recevez nos offres par email</div>
+                    @if(session('newsletter_success'))
+                        <div class="text-sm text-white">Merci, vous êtes inscrit ✅</div>
+                    @else
+                        <form method="POST" action="{{ route('public.newsletter') }}" class="flex gap-2 w-full sm:w-auto">
+                            @csrf
+                            <input type="email" name="email" required placeholder="Votre email" class="flex-1 sm:w-64 rounded-lg px-3 py-2 text-gray-800">
+                            <button class="rounded-lg bg-brand-secondary px-4 py-2 font-semibold text-white hover:bg-brand-secondary-dark">S'inscrire</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        @endif
+        @php $footerPages = \App\Models\Page::where('is_published', true)->where('show_in_footer', true)->orderBy('sort_order')->get(['title','slug']); @endphp
         <div class="max-w-6xl mx-auto px-4 py-8 text-sm flex flex-col sm:flex-row justify-between gap-3">
             <div>
                 <div class="font-semibold text-white">{{ $agency->name }}</div>
                 @if($agency->slogan)<div class="text-white/70">{{ $agency->slogan }}</div>@endif
                 @if($agency->address)<div class="mt-1">{{ $agency->address }}{{ $agency->city ? ', '.$agency->city : '' }}</div>@endif
+                @if($footerPages->isNotEmpty())
+                    <div class="mt-3 flex flex-wrap gap-3">
+                        @foreach($footerPages as $p)<a href="{{ route('public.page', $p->slug) }}" class="hover:text-white underline">{{ $p->title }}</a>@endforeach
+                    </div>
+                @endif
             </div>
             <div class="text-right">
                 @if($agency->phone)<div>📞 {{ $agency->phone }}</div>@endif

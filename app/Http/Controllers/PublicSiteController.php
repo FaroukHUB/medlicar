@@ -232,6 +232,40 @@ class PublicSiteController extends Controller
         ]);
     }
 
+    /** Inscription à la newsletter. */
+    public function subscribeNewsletter(Request $request)
+    {
+        $data = $request->validate(['email' => ['required', 'email', 'max:150']]);
+        \App\Models\NewsletterSubscriber::firstOrCreate(['email' => $data['email']]);
+
+        return back()->with('newsletter_success', true);
+    }
+
+    /** Page statique (mentions légales, CGU, guide…). */
+    public function page(string $slug)
+    {
+        $page = \App\Models\Page::where('slug', $slug)->where('is_published', true)->firstOrFail();
+
+        return view('public.page', ['agency' => Agency::current(), 'page' => $page]);
+    }
+
+    /** Plan du site (SEO). */
+    public function sitemap()
+    {
+        $urls = [['loc' => route('public.home'), 'priority' => '1.0']];
+        foreach (Vehicle::where('is_active', true)->pluck('slug') as $slug) {
+            $urls[] = ['loc' => route('public.vehicle', $slug), 'priority' => '0.8'];
+        }
+        foreach (BlogPost::published()->pluck('slug') as $slug) {
+            $urls[] = ['loc' => route('public.blog.show', $slug), 'priority' => '0.6'];
+        }
+        foreach (\App\Models\Page::where('is_published', true)->pluck('slug') as $slug) {
+            $urls[] = ['loc' => route('public.page', $slug), 'priority' => '0.4'];
+        }
+
+        return response()->view('public.sitemap', ['urls' => $urls])->header('Content-Type', 'application/xml');
+    }
+
     /** Page publique des conditions de location. */
     public function terms()
     {
