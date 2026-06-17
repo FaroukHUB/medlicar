@@ -49,6 +49,29 @@ class VehicleResource extends Resource
                 Forms\Components\Section::make('Identité')
                     ->columns(2)
                     ->schema([
+                        Forms\Components\Select::make('template_loader')
+                            ->label('⚡ Pré-remplir depuis un modèle')
+                            ->options(fn () => \App\Models\VehicleTemplate::where('is_active', true)->pluck('name', 'id'))
+                            ->searchable()->dehydrated(false)->live()->visibleOn('create')
+                            ->helperText('Sélectionne un modèle pour remplir automatiquement les caractéristiques.')
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                $t = \App\Models\VehicleTemplate::find($state);
+                                if (! $t) {
+                                    return;
+                                }
+                                $set('brand_id', $t->brand_id);
+                                $set('category_id', $t->category_id);
+                                $set('model', $t->name);
+                                $set('full_name', $t->name);
+                                $set('slug', \Illuminate\Support\Str::slug($t->name));
+                                $set('transmission', $t->transmission);
+                                $set('fuel_type', $t->fuel_type);
+                                $set('seats', $t->seats);
+                                $set('doors', $t->doors);
+                                $set('luggage_capacity', $t->luggage_capacity);
+                                $set('has_ac', $t->has_ac);
+                                $set('description', $t->description);
+                            })->columnSpanFull(),
                         Forms\Components\Select::make('brand_id')
                             ->label('Marque')
                             ->relationship('brand', 'name')
