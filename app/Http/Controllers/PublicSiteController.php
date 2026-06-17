@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agency;
+use App\Models\BlogPost;
 use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Customer;
@@ -199,6 +200,36 @@ class PublicSiteController extends Controller
             'total' => round($total, 2),
             'rules' => $pricing['rules'],
         ];
+    }
+
+    /** Liste des articles du blog. */
+    public function blogIndex()
+    {
+        $posts = BlogPost::published()->latest('published_at')->latest()->paginate(9);
+        $featured = BlogPost::published()->where('is_featured', true)->latest('published_at')->first();
+
+        return view('public.blog.index', [
+            'agency' => Agency::current(),
+            'posts' => $posts,
+            'featured' => $featured,
+        ]);
+    }
+
+    /** Détail d'un article. */
+    public function blogShow(string $slug)
+    {
+        $post = BlogPost::published()->where('slug', $slug)->firstOrFail();
+        $post->increment('views_count');
+
+        $related = BlogPost::published()->where('id', '!=', $post->id)
+            ->when($post->category, fn ($q) => $q->where('category', $post->category))
+            ->latest('published_at')->take(3)->get();
+
+        return view('public.blog.show', [
+            'agency' => Agency::current(),
+            'post' => $post,
+            'related' => $related,
+        ]);
     }
 
     /** Page publique des conditions de location. */

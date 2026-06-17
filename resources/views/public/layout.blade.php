@@ -60,6 +60,7 @@
                 <span class="text-xl font-bold tracking-tight">{{ $agency->name }}</span>
             </a>
             <div class="hidden sm:flex items-center gap-4 text-sm">
+                @if($agency->section_blog)<a href="{{ route('public.blog') }}" class="hover:underline">Blog</a>@endif
                 @if($agency->phone)<a href="tel:{{ $agency->phone }}" class="hover:underline">📞 {{ $agency->phone }}</a>@endif
                 @if($agency->whatsapp)<a href="https://wa.me/{{ preg_replace('/\D/','',$agency->whatsapp) }}" class="bg-white/15 px-3 py-1.5 rounded-lg hover:bg-white/25">WhatsApp</a>@endif
             </div>

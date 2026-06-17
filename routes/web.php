@@ -16,6 +16,8 @@ Route::post('/reservation/{token}/documents', [PublicSiteController::class, 'sto
 Route::get('/vehicule/{vehicle}/disponibilites', [PublicSiteController::class, 'availability'])->name('public.availability');
 Route::post('/reservation', [PublicSiteController::class, 'store'])->name('public.reserve');
 Route::get('/conditions', [PublicSiteController::class, 'terms'])->name('public.terms');
+Route::get('/blog', [PublicSiteController::class, 'blogIndex'])->name('public.blog');
+Route::get('/blog/{slug}', [PublicSiteController::class, 'blogShow'])->name('public.blog.show');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');
 Route::get('/reservation/{reference}/payer', [PublicSiteController::class, 'payNow'])->name('public.pay');
 Route::get('/reservation/{reference}/paypal/retour', [PublicSiteController::class, 'paypalReturn'])->name('public.paypal.return');

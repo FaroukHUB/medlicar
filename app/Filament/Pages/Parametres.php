@@ -87,6 +87,7 @@ class Parametres extends Page implements HasForms
                         Forms\Components\TextInput::make('faq_title')->label('Titre')->placeholder('Questions fréquentes'),
                         Forms\Components\Toggle::make('section_contact')->label('Afficher « Contact »')->default(true),
                         Forms\Components\TextInput::make('contact_title')->label('Titre')->placeholder('Nous contacter'),
+                        Forms\Components\Toggle::make('section_blog')->label('Afficher le lien « Blog »')->default(true)->columnSpanFull(),
                         Forms\Components\Toggle::make('section_vehicles')->label('Afficher les véhicules')->default(true)->columnSpanFull(),
                     ]),
 
