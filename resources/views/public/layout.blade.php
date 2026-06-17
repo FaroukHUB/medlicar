@@ -43,6 +43,7 @@
             --brand-primary-dark: color-mix(in srgb, var(--brand-primary) 82%, #000);
         }
         body{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+        [x-cloak]{display:none!important}
         .bg-brand-primary-dark{background-color:var(--brand-primary-dark)}
         .hover\:bg-brand-secondary-dark:hover{filter:brightness(.9)}
     </style>
@@ -111,8 +112,35 @@
         </div>
     </footer>
 
+    {{-- Popup promotionnel (configurable depuis l'admin) --}}
+    @if($agency->popup_enabled && ($agency->popup_title || $agency->popup_text))
+        <div x-data="{ open: false }" x-cloak
+             x-init="if(!localStorage.getItem('rzpopup_'+new Date().toDateString())){ setTimeout(() => open = true, 1500) }"
+             x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+             @click.self="open=false">
+            <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                <button @click="open=false; localStorage.setItem('rzpopup_'+new Date().toDateString(),'1')" class="absolute right-3 top-3 text-2xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
+                @if($agency->popup_image)<img src="{{ \Illuminate\Support\Facades\Storage::url($agency->popup_image) }}" class="mb-4 w-full rounded-xl object-cover">@endif
+                @if($agency->popup_title)<h3 class="text-xl font-extrabold text-gray-900">{{ $agency->popup_title }}</h3>@endif
+                @if($agency->popup_text)<p class="mt-2 text-gray-600">{{ $agency->popup_text }}</p>@endif
+                @if($agency->popup_button_text)
+                    <a href="{{ $agency->popup_button_url ?: '#' }}" class="mt-4 inline-block rounded-xl bg-brand-secondary px-5 py-2.5 font-semibold text-white hover:bg-brand-secondary-dark">{{ $agency->popup_button_text }}</a>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
+    <script>
+        // Suivi des clics WhatsApp (analytics)
+        document.addEventListener('click', function (e) {
+            const a = e.target.closest('a[href*="wa.me"]');
+            if (a) {
+                try { navigator.sendBeacon(@js(route('public.track')), new Blob([JSON.stringify({ type: 'whatsapp', label: location.pathname })], { type: 'application/json' })); } catch (_) {}
+            }
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

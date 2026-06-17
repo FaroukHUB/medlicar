@@ -19,6 +19,7 @@ Route::get('/conditions', [PublicSiteController::class, 'terms'])->name('public.
 Route::get('/blog', [PublicSiteController::class, 'blogIndex'])->name('public.blog');
 Route::get('/blog/{slug}', [PublicSiteController::class, 'blogShow'])->name('public.blog.show');
 Route::post('/newsletter', [PublicSiteController::class, 'subscribeNewsletter'])->name('public.newsletter');
+Route::post('/track', [PublicSiteController::class, 'track'])->name('public.track');
 Route::get('/sitemap.xml', [PublicSiteController::class, 'sitemap'])->name('public.sitemap');
 Route::get('/page/{slug}', [PublicSiteController::class, 'page'])->name('public.page');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');

@@ -232,6 +232,17 @@ class PublicSiteController extends Controller
         ]);
     }
 
+    /** Enregistre un événement (ex : clic WhatsApp) — appelé en beacon. */
+    public function track(Request $request)
+    {
+        \App\Models\VisitEvent::create([
+            'type' => in_array($request->input('type'), ['whatsapp', 'call']) ? $request->input('type') : 'whatsapp',
+            'label' => substr((string) $request->input('label'), 0, 191),
+        ]);
+
+        return response()->noContent();
+    }
+
     /** Inscription à la newsletter. */
     public function subscribeNewsletter(Request $request)
     {

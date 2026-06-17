@@ -88,7 +88,19 @@ class Parametres extends Page implements HasForms
                         Forms\Components\Toggle::make('section_contact')->label('Afficher « Contact »')->default(true),
                         Forms\Components\TextInput::make('contact_title')->label('Titre')->placeholder('Nous contacter'),
                         Forms\Components\Toggle::make('section_blog')->label('Afficher le lien « Blog »')->default(true)->columnSpanFull(),
-                        Forms\Components\Toggle::make('section_vehicles')->label('Afficher les véhicules')->default(true)->columnSpanFull(),
+                        Forms\Components\Toggle::make('section_vehicles')->label('Afficher les véhicules')->default(true),
+                        Forms\Components\Toggle::make('newsletter_enabled')->label('Afficher l\'inscription newsletter')->default(true),
+                    ]),
+
+                Forms\Components\Section::make('Popup promotionnel')
+                    ->description('Fenêtre affichée à l\'arrivée sur le site (1×/jour par visiteur).')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\Toggle::make('popup_enabled')->label('Activer le popup')->live()->columnSpanFull(),
+                        Forms\Components\TextInput::make('popup_title')->label('Titre')->visible(fn (Forms\Get $get) => $get('popup_enabled')),
+                        Forms\Components\FileUpload::make('popup_image')->label('Image')->image()->directory('agency')->visible(fn (Forms\Get $get) => $get('popup_enabled')),
+                        Forms\Components\Textarea::make('popup_text')->label('Texte')->rows(2)->columnSpanFull()->visible(fn (Forms\Get $get) => $get('popup_enabled')),
+                        Forms\Components\TextInput::make('popup_button_text')->label('Texte du bouton')->visible(fn (Forms\Get $get) => $get('popup_enabled')),
+                        Forms\Components\TextInput::make('popup_button_url')->label('Lien du bouton')->visible(fn (Forms\Get $get) => $get('popup_enabled')),
                     ]),
 
                 Forms\Components\Section::make('Paramètres métier')->columns(2)->schema([

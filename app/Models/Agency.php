@@ -29,6 +29,7 @@ class Agency extends Model
         'section_contact' => 'boolean',
         'section_blog' => 'boolean',
         'newsletter_enabled' => 'boolean',
+        'popup_enabled' => 'boolean',
         'require_terms' => 'boolean',
         'protection_enabled' => 'boolean',
         'protection_basic_details' => 'array',
