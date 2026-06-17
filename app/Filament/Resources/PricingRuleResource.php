@@ -16,7 +16,7 @@ class PricingRuleResource extends Resource
     protected static ?string $model = PricingRule::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
-    protected static ?string $navigationGroup = 'Tarification';
+    protected static ?string $navigationGroup = 'Tarifs & promos';
     protected static ?string $navigationLabel = 'Règles de prix';
     protected static ?string $modelLabel = 'règle de prix';
     protected static ?string $pluralModelLabel = 'Règles de prix';

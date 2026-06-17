@@ -59,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
                 'Réservations',
                 'Clients',
                 'Finances',
-                'Tarification',
+                'Tarifs & promos',
                 'Configuration',
             ])
             ->pages([
