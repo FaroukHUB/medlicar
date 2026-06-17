@@ -43,7 +43,53 @@ class Parametres extends Page implements HasForms
                     Forms\Components\TextInput::make('address')->label('Adresse'),
                     Forms\Components\TextInput::make('city')->label('Ville'),
                     Forms\Components\TextInput::make('wilaya')->label('Wilaya'),
+                    Forms\Components\TextInput::make('slogan')->label('Slogan')->placeholder('Votre route, notre passion')->columnSpanFull(),
                 ]),
+
+                Forms\Components\Section::make('Apparence du site')
+                    ->description('Change ces 2 couleurs pour re-brander tout le site et l\'administration.')
+                    ->columns(2)->schema([
+                        Forms\Components\ColorPicker::make('color_primary')->label('Couleur primaire')->default('#006233'),
+                        Forms\Components\ColorPicker::make('color_secondary')->label('Couleur secondaire (boutons)')->default('#D21034'),
+                        Forms\Components\FileUpload::make('favicon')->label('Favicon')->image()->directory('agency')
+                            ->helperText('Petite icône de l\'onglet du navigateur.'),
+                        Forms\Components\FileUpload::make('og_image')->label('Image de partage (réseaux sociaux)')->image()->directory('agency')
+                            ->helperText('Affichée quand on partage le lien sur Facebook/WhatsApp.'),
+                    ]),
+
+                Forms\Components\Section::make('Réseaux sociaux')->columns(3)->collapsed()->schema([
+                    Forms\Components\TextInput::make('facebook')->label('Facebook')->url()->prefixIcon('heroicon-o-link'),
+                    Forms\Components\TextInput::make('instagram')->label('Instagram')->url()->prefixIcon('heroicon-o-link'),
+                    Forms\Components\TextInput::make('tiktok')->label('TikTok')->url()->prefixIcon('heroicon-o-link'),
+                ]),
+
+                Forms\Components\Section::make('Référencement (SEO)')
+                    ->description('Comment le site apparaît sur Google et lors d\'un partage.')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\TextInput::make('meta_title')->label('Titre SEO')->columnSpanFull()
+                            ->placeholder('Nom de l\'agence — Location de voitures')->maxLength(70),
+                        Forms\Components\Textarea::make('meta_description')->label('Meta description')->columnSpanFull()
+                            ->rows(2)->maxLength(180)->helperText('~160 caractères, le résumé affiché sur Google.'),
+                        Forms\Components\TextInput::make('meta_keywords')->label('Mots-clés')->columnSpanFull()
+                            ->placeholder('location voiture, alger, suv, berline'),
+                    ]),
+
+                Forms\Components\Section::make('Sections de la page d\'accueil')
+                    ->description('Active/désactive et renomme les sections du site public.')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\Toggle::make('section_why')->label('Afficher « Pourquoi nous choisir »')->default(true),
+                        Forms\Components\TextInput::make('why_title')->label('Titre')->placeholder('Pourquoi nous choisir'),
+                        Forms\Components\Toggle::make('section_stats')->label('Afficher « Statistiques »')->default(true),
+                        Forms\Components\TextInput::make('stats_title')->label('Titre')->placeholder('En chiffres'),
+                        Forms\Components\Toggle::make('section_reviews')->label('Afficher « Avis clients »')->default(true),
+                        Forms\Components\TextInput::make('reviews_title')->label('Titre')->placeholder('Avis clients'),
+                        Forms\Components\Toggle::make('section_faq')->label('Afficher « FAQ »')->default(true),
+                        Forms\Components\TextInput::make('faq_title')->label('Titre')->placeholder('Questions fréquentes'),
+                        Forms\Components\Toggle::make('section_contact')->label('Afficher « Contact »')->default(true),
+                        Forms\Components\TextInput::make('contact_title')->label('Titre')->placeholder('Nous contacter'),
+                        Forms\Components\Toggle::make('section_vehicles')->label('Afficher les véhicules')->default(true)->columnSpanFull(),
+                    ]),
+
                 Forms\Components\Section::make('Paramètres métier')->columns(2)->schema([
                     Forms\Components\TextInput::make('currency')->label('Devise')->default('DZD')->maxLength(3),
                     Forms\Components\TextInput::make('vat_rate')->label('Taux de TVA (%)')->numeric(),

@@ -42,9 +42,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            // Accent orange (vert/rouge conservés pour les statuts).
+            // Couleurs pilotées par l'agence (administrables). Repli si BDD indisponible.
             ->colors([
-                'primary' => Color::hex('#F97316'), // orange
+                'primary' => Color::hex($this->brandColor('color_primary', '#006233')),
+                'secondary' => Color::hex($this->brandColor('color_secondary', '#D21034')),
                 'success' => Color::hex('#16a34a'),
                 'danger' => Color::hex('#D21034'),
                 'warning' => Color::hex('#F59E0B'),
@@ -81,5 +82,15 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /** Lit une couleur de l'agence sans planter si la BDD/colonne n'existe pas encore (migrations, etc.). */
+    private function brandColor(string $column, string $default): string
+    {
+        try {
+            return \App\Models\Agency::current()->{$column} ?: $default;
+        } catch (\Throwable $e) {
+            return $default;
+        }
     }
 }

@@ -14,13 +14,13 @@
     @endif
 
     @if(session('pay_error'))
-        <div class="mt-4 bg-red-50 text-dz-red text-sm rounded-lg p-3">{{ session('pay_error') }}</div>
+        <div class="mt-4 bg-red-50 text-brand-secondary text-sm rounded-lg p-3">{{ session('pay_error') }}</div>
     @endif
 
     <div class="mt-6 bg-white rounded-2xl ring-1 ring-gray-100 shadow-sm p-6 text-left">
         <div class="flex justify-between py-2 border-b">
             <span class="text-gray-500">Référence</span>
-            <span class="font-bold text-dz-green">{{ $booking->reference }}</span>
+            <span class="font-bold text-brand-primary">{{ $booking->reference }}</span>
         </div>
         <div class="flex justify-between py-2 border-b">
             <span class="text-gray-500">Véhicule</span>
@@ -57,7 +57,7 @@
 
     @if($agency->whatsapp)
         <a href="https://wa.me/{{ preg_replace('/\D/','',$agency->whatsapp) }}?text={{ urlencode('Bonjour, ma demande de réservation '.$booking->reference) }}"
-           class="inline-block mt-6 bg-dz-green text-white font-semibold px-5 py-3 rounded-xl hover:bg-dz-greendark">
+           class="inline-block mt-6 bg-brand-primary text-white font-semibold px-5 py-3 rounded-xl hover:bg-brand-primary-dark">
             Contacter l'agence sur WhatsApp
         </a>
     @endif

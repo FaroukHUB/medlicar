@@ -6,8 +6,12 @@ use App\Models\Agency;
 use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\FaqItem;
+use App\Models\Feature;
 use App\Models\HeroSlide;
 use App\Models\Option;
+use App\Models\Review;
+use App\Models\Stat;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Services\PayPalService;
@@ -40,11 +44,19 @@ class PublicSiteController extends Controller
             }
         }
 
+        $agency = Agency::current();
+
         return view('public.index', [
-            'agency' => Agency::current(),
+            'agency' => $agency,
             'heroSlides' => HeroSlide::where('is_active', true)->orderBy('sort_order')->get(),
             'featured' => $vehicles->where('is_featured', true)->values(),
             'sections' => $sections,
+            'features' => $agency->section_why ? Feature::where('is_active', true)->orderBy('sort_order')->get() : collect(),
+            'stats' => $agency->section_stats ? Stat::where('is_active', true)->orderBy('sort_order')->get() : collect(),
+            'faqItems' => $agency->section_faq ? FaqItem::where('is_active', true)->orderBy('sort_order')->get() : collect(),
+            'reviews' => $agency->section_reviews
+                ? Review::with('customer')->where('is_published', true)->latest()->take(6)->get()
+                : collect(),
         ]);
     }
 

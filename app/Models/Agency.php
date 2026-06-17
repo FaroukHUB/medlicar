@@ -21,7 +21,25 @@ class Agency extends Model
         'transfer_enabled' => 'boolean',
         'show_eur' => 'boolean',
         'eur_rate' => 'decimal:2',
+        'section_why' => 'boolean',
+        'section_vehicles' => 'boolean',
+        'section_reviews' => 'boolean',
+        'section_stats' => 'boolean',
+        'section_faq' => 'boolean',
+        'section_contact' => 'boolean',
     ];
+
+    /** Couleur primaire (boutons, en-têtes) avec repli. */
+    public function colorPrimary(): string
+    {
+        return $this->color_primary ?: '#006233';
+    }
+
+    /** Couleur secondaire (CTA) avec repli. */
+    public function colorSecondary(): string
+    {
+        return $this->color_secondary ?: '#D21034';
+    }
 
     /** Récupère (et met en cache) l'agence unique. */
     public static function current(): self

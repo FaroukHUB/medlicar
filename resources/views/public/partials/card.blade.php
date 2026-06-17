@@ -6,7 +6,7 @@
 <div class="group relative flex flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-gray-100 shadow-sm transition hover:shadow-xl">
     {{-- Ruban promo --}}
     @if($vehicle->is_on_promo)
-        <div class="absolute right-0 top-5 z-10 rounded-l-lg bg-dz-red px-4 py-1.5 text-sm font-bold text-white shadow-md">
+        <div class="absolute right-0 top-5 z-10 rounded-l-lg bg-brand-secondary px-4 py-1.5 text-sm font-bold text-white shadow-md">
             {{ $vehicle->promo_label ?: 'PROMO' }}
         </div>
     @endif
@@ -48,7 +48,7 @@
         {{-- Prix --}}
         @php $eurDay = $agency->toEur($vehicle->price_per_day); @endphp
         <div class="mt-4 rounded-2xl bg-gray-50 px-4 py-3">
-            <span class="text-2xl font-extrabold text-dz-green">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+            <span class="text-2xl font-extrabold text-brand-primary">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
             @if($eurDay)<span class="text-base font-semibold text-gray-400">/ {{ $eurDay }} €</span>@endif
             <span class="text-sm text-gray-500">/ jour</span>
             @if($vehicle->price_per_week || $vehicle->price_per_month)
@@ -68,7 +68,7 @@
             <ul class="mt-4 space-y-1.5">
                 @foreach($advantages as $adv)
                     <li class="flex items-center gap-2 text-sm text-gray-700">
-                        <svg class="h-4 w-4 flex-none text-dz-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        <svg class="h-4 w-4 flex-none text-brand-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                         {{ $adv->name }}
                     </li>
                 @endforeach
@@ -78,7 +78,7 @@
         {{-- Boutons --}}
         <div class="mt-5 flex gap-2 pt-1">
             <a href="{{ route('public.vehicle', $vehicle->slug) }}"
-               class="flex-1 rounded-xl bg-dz-red py-3 text-center text-sm font-bold text-white transition hover:bg-red-700">
+               class="flex-1 rounded-xl bg-brand-secondary py-3 text-center text-sm font-bold text-white transition hover:bg-brand-secondary-dark">
                 Réserver
             </a>
             @if($wa)

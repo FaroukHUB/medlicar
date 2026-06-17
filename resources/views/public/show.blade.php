@@ -53,7 +53,7 @@
             <div class="bg-white rounded-2xl ring-1 ring-gray-100 shadow-sm p-5 sticky top-4">
                 <div class="flex items-end justify-between border-b pb-4">
                     <div>
-                        <span class="text-2xl font-bold text-dz-green">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
+                        <span class="text-2xl font-bold text-brand-primary">{{ number_format($vehicle->price_per_day, 0, ',', ' ') }} DA</span>
                         @if($agency->toEur($vehicle->price_per_day))<span class="text-base font-semibold text-gray-400">/ {{ $agency->toEur($vehicle->price_per_day) }} €</span>@endif
                         <span class="text-gray-500">/ jour</span>
                     </div>
@@ -63,7 +63,7 @@
                 </div>
 
                 @if($errors->any())
-                    <div class="mt-4 bg-red-50 text-dz-red text-sm rounded-lg p-3">
+                    <div class="mt-4 bg-red-50 text-brand-secondary text-sm rounded-lg p-3">
                         @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
                     </div>
                 @endif
@@ -77,7 +77,7 @@
                     <div>
                         <label class="block text-sm font-medium mb-1">Vos dates</label>
                         <input type="text" id="daterange" placeholder="Sélectionnez la période"
-                               class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 focus:ring-dz-green" readonly>
+                               class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2 focus:ring-brand-primary" readonly>
                         <p class="text-xs text-gray-400 mt-1">Les dates indisponibles sont grisées.</p>
                     </div>
 
@@ -89,7 +89,7 @@
                                     <label class="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2 cursor-pointer">
                                         <span class="flex items-center gap-2">
                                             <input type="checkbox" name="options[]" value="{{ $opt->id }}"
-                                                   class="opt-check rounded text-dz-green"
+                                                   class="opt-check rounded text-brand-primary"
                                                    data-price="{{ (float) $opt->price }}" data-type="{{ $opt->price_type }}"
                                                    @checked(in_array($opt->id, old('options', [])))>
                                             {{ $opt->name }}
@@ -106,7 +106,7 @@
                     <div id="price-box" class="hidden bg-gray-50 rounded-lg p-3 text-sm space-y-1">
                         <div class="flex justify-between"><span id="price-detail"></span><span id="price-base"></span></div>
                         <div id="price-options-row" class="flex justify-between text-gray-500 hidden"><span>Options</span><span id="price-options"></span></div>
-                        <div class="flex justify-between border-t pt-1 font-bold text-dz-green"><span>Total</span><span id="price-total"></span></div>
+                        <div class="flex justify-between border-t pt-1 font-bold text-brand-primary"><span>Total</span><span id="price-total"></span></div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -117,7 +117,7 @@
                     <input type="email" name="email" value="{{ old('email') }}" placeholder="Email (optionnel)" class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2">
                     <textarea name="message" placeholder="Message (optionnel)" rows="2" class="w-full rounded-lg border-gray-300 ring-1 ring-gray-200 px-3 py-2">{{ old('message') }}</textarea>
 
-                    <button type="submit" class="w-full bg-dz-red hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition">
+                    <button type="submit" class="w-full bg-brand-secondary hover:bg-brand-secondary-dark text-white font-semibold py-3 rounded-xl transition">
                         Demander la réservation
                     </button>
                     <p class="text-xs text-gray-400 text-center">Votre demande sera confirmée par l'agence.</p>
