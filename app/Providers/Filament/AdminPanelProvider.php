@@ -26,18 +26,18 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('app')
             ->path('app')
-            ->brandName('ResaDZ – Espace Loueur')
+            ->brandName(fn () => \App\Models\Agency::current()->name)
             // Logo de l'agence : dépose le fichier dans public/images/logo.png
-            // (s'affichera automatiquement ; sinon le nom "ResaDZ" est utilisé).
+            // (s'affichera automatiquement ; sinon le nom de l'agence est utilisé).
             ->brandLogo(fn () => file_exists(public_path('images/logo.png')) ? asset('images/logo.png') : null)
             ->brandLogoHeight('2.5rem')
             ->favicon(fn () => file_exists(public_path('images/favicon.png')) ? asset('images/favicon.png') : null)
             ->login()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            // Identité ResaDZ : accent orange (vert/rouge conservés pour les statuts).
+            // Accent orange (vert/rouge conservés pour les statuts).
             ->colors([
-                'primary' => Color::hex('#F97316'), // orange ResaDZ
+                'primary' => Color::hex('#F97316'), // orange
                 'success' => Color::hex('#16a34a'),
                 'danger' => Color::hex('#D21034'),
                 'warning' => Color::hex('#F59E0B'),
