@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
 
                 return file_exists(public_path('images/logo.png')) ? asset('images/logo.png') : null;
             })
-            ->brandLogoHeight('2.5rem')
+            ->brandLogoHeight('3.5rem')
             ->favicon(fn () => file_exists(public_path('images/favicon.png')) ? asset('images/favicon.png') : null)
             ->login()
             ->databaseNotifications()
