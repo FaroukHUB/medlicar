@@ -167,10 +167,9 @@ class Parametres extends Page implements HasForms
                         Forms\Components\TextInput::make('paypal_secret')->label('Secret')->password()->revealable()->columnSpanFull(),
                     ]),
                 Forms\Components\Section::make('Modules')
-                    ->description('Active les services proposés par l\'agence. Désactivés = location classique uniquement.')
+                    ->description('Active les services proposés par l\'agence.')
                     ->columns(2)->schema([
                         Forms\Components\Toggle::make('delivery_enabled')->label('Livraison de véhicule'),
-                        Forms\Components\Toggle::make('transfer_enabled')->label('Transfert / VTC'),
                     ]),
             ])
             ->statePath('data');
