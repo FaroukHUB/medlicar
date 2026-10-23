@@ -19,6 +19,20 @@ class Customer extends Model
         'rating' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Customer $customer) {
+            if (empty($customer->referral_code)) {
+                $customer->referral_code = strtoupper(\Illuminate\Support\Str::random(6));
+            }
+        });
+    }
+
+    public function referralsMade()
+    {
+        return $this->hasMany(Referral::class, "referrer_id");
+    }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class);

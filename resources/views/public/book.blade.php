@@ -148,6 +148,12 @@
                 <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Téléphone" required class="mt-3 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2">
                 <input type="email" name="email" value="{{ old('email') }}" placeholder="Email (optionnel)" class="mt-3 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2">
                 <textarea name="message" rows="2" placeholder="Message (optionnel)" class="mt-3 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2">{{ old('message') }}</textarea>
+                @if($agency->referral_enabled)
+                    <input type="text" name="referral_code" value="{{ old('referral_code') }}" placeholder="Code de parrainage (optionnel)" class="mt-3 w-full rounded-lg ring-1 ring-gray-200 px-3 py-2 uppercase">
+                    @if((float) $agency->referred_discount > 0)
+                        <p class="mt-1 text-xs text-brand-primary">Avec un code de parrainage valide : {{ number_format($agency->referred_discount, 0, ',', ' ') }} DA de remise !</p>
+                    @endif
+                @endif
             </section>
         </div>
 

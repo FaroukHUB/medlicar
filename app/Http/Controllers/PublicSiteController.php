@@ -338,6 +338,7 @@ class PublicSiteController extends Controller
             'return_fuel' => ['nullable', 'boolean'],
             'return_wash' => ['nullable', 'boolean'],
             'message' => ['nullable', 'string', 'max:1000'],
+            'referral_code' => ['nullable', 'string', 'max:20'],
             'accept_terms' => [$agency->require_terms ? 'accepted' : 'nullable'],
         ], [
             'accept_terms.accepted' => 'Vous devez accepter les conditions de location.',
@@ -385,6 +386,19 @@ class PublicSiteController extends Controller
             $protectionPlan, (bool) ($data['return_fuel'] ?? false), (bool) ($data['return_wash'] ?? false)
         );
 
+        // Parrainage : remise au filleul si code valide.
+        $referrer = null;
+        $referralDiscount = 0;
+        if ($agency->referral_enabled && ! empty($data['referral_code'])) {
+            $referrer = Customer::where('referral_code', strtoupper($data['referral_code']))->first();
+            if ($referrer && $referrer->id !== $customer->id) {
+                $referralDiscount = min((float) $agency->referred_discount, $q['total']);
+            } else {
+                $referrer = null;
+            }
+        }
+        $total = $q['total'] - $referralDiscount;
+
         $advancePct = (float) ($agency->default_advance_percent ?? 0);
 
         $booking = Booking::create([
@@ -408,19 +422,29 @@ class PublicSiteController extends Controller
             'return_location_id' => $return?->id,
             'pickup_location' => $pickup?->name,
             'return_location' => $return?->name,
-            'discount_amount' => 0,
-            'total_price' => $q['total'],
+            'discount_amount' => $referralDiscount,
+            'total_price' => $total,
             'deposit_amount' => (float) $vehicle->deposit_amount,
-            'advance_amount' => round($q['total'] * $advancePct / 100),
+            'advance_amount' => round($total * $advancePct / 100),
             'advance_status' => 'pending',
             'payment_status' => 'pending',
             'deposit_status' => 'pending',
-            'amount_remaining' => $q['total'],
+            'amount_remaining' => $total,
             'status' => 'pending',
             'source' => 'website',
             'advance_expires_at' => now()->addHours((int) ($agency->advance_expiry_hours ?? 48)),
             'internal_notes' => $data['message'] ?? null,
         ]);
+
+        if ($referrer) {
+            \App\Models\Referral::create([
+                'referrer_id' => $referrer->id,
+                'referred_id' => $customer->id,
+                'booking_id' => $booking->id,
+                'reward_amount' => (float) $agency->referral_reward,
+                'status' => 'pending',
+            ]);
+        }
 
         $this->notifyAgency($booking, $agency);
 
@@ -431,7 +455,7 @@ class PublicSiteController extends Controller
     public function confirmation(string $reference)
     {
         $agency = Agency::current();
-        $booking = Booking::with('vehicle')->where('reference', $reference)->firstOrFail();
+        $booking = Booking::with(['vehicle', 'customer'])->where('reference', $reference)->firstOrFail();
         $paypal = new PayPalService($agency);
 
         $canPay = $paypal->isConfigured()

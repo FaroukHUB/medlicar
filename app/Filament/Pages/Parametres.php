@@ -103,6 +103,16 @@ class Parametres extends Page implements HasForms
                         Forms\Components\TextInput::make('popup_button_url')->label('Lien du bouton')->visible(fn (Forms\Get $get) => $get('popup_enabled')),
                     ]),
 
+                Forms\Components\Section::make('Parrainage')
+                    ->description('Chaque client a un code à partager. Le filleul obtient une remise, le parrain une récompense.')
+                    ->columns(2)->collapsed()->schema([
+                        Forms\Components\Toggle::make('referral_enabled')->label('Activer le parrainage')->live()->columnSpanFull(),
+                        Forms\Components\TextInput::make('referred_discount')->label('Remise pour le filleul (DA)')->numeric()->default(0)
+                            ->visible(fn (Forms\Get $get) => $get('referral_enabled')),
+                        Forms\Components\TextInput::make('referral_reward')->label('Récompense pour le parrain (DA)')->numeric()->default(0)
+                            ->visible(fn (Forms\Get $get) => $get('referral_enabled')),
+                    ]),
+
                 Forms\Components\Section::make('Paramètres métier')->columns(2)->schema([
                     Forms\Components\TextInput::make('currency')->label('Devise')->default('DZD')->maxLength(3),
                     Forms\Components\TextInput::make('vat_rate')->label('Taux de TVA (%)')->numeric(),

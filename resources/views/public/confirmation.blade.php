@@ -55,6 +55,14 @@
         </div>
     @endif
 
+    @if($agency->referral_enabled && $booking->customer?->referral_code)
+        <div class="mt-6 rounded-2xl bg-brand-primary/10 p-5 text-center">
+            <div class="text-sm text-gray-600">🎁 Parrainez vos proches et gagnez des récompenses</div>
+            <div class="mt-2 text-2xl font-extrabold tracking-widest text-brand-primary">{{ $booking->customer->referral_code }}</div>
+            <div class="mt-1 text-xs text-gray-500">Partagez ce code : votre filleul obtient une remise, vous une récompense.</div>
+        </div>
+    @endif
+
     @if($booking->client_token)
         <a href="{{ route('public.documents', $booking->client_token) }}"
            class="inline-block mt-6 mr-2 bg-brand-primary text-white font-semibold px-5 py-3 rounded-xl hover:bg-brand-primary-dark">
