@@ -21,6 +21,7 @@ Route::get('/blog/{slug}', [PublicSiteController::class, 'blogShow'])->name('pub
 Route::post('/newsletter', [PublicSiteController::class, 'subscribeNewsletter'])->name('public.newsletter');
 Route::post('/track', [PublicSiteController::class, 'track'])->name('public.track');
 Route::get('/sitemap.xml', [PublicSiteController::class, 'sitemap'])->name('public.sitemap');
+Route::get('/manifest.json', [PublicSiteController::class, 'manifest'])->name('public.manifest');
 Route::get('/page/{slug}', [PublicSiteController::class, 'page'])->name('public.page');
 Route::get('/reservation/{reference}/confirmation', [PublicSiteController::class, 'confirmation'])->name('public.confirmation');
 Route::get('/reservation/{reference}/payer', [PublicSiteController::class, 'payNow'])->name('public.pay');

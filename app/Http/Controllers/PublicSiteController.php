@@ -277,6 +277,32 @@ class PublicSiteController extends Controller
         return response()->view('public.sitemap', ['urls' => $urls])->header('Content-Type', 'application/xml');
     }
 
+    /** Manifeste PWA dynamique (reprend l'identité de l'agence). */
+    public function manifest()
+    {
+        $agency = Agency::current();
+        $icon = $agency->logo
+            ? \Illuminate\Support\Facades\Storage::url($agency->logo)
+            : ($agency->favicon ? \Illuminate\Support\Facades\Storage::url($agency->favicon) : '/favicon.ico');
+
+        return response()->json([
+            'name' => $agency->name,
+            'short_name' => \Illuminate\Support\Str::limit($agency->name, 12, ''),
+            'description' => $agency->meta_description ?: 'Location de voitures',
+            'start_url' => '/',
+            'scope' => '/',
+            'display' => 'standalone',
+            'orientation' => 'portrait',
+            'background_color' => '#ffffff',
+            'theme_color' => $agency->colorPrimary(),
+            'lang' => 'fr',
+            'icons' => [
+                ['src' => $icon, 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+                ['src' => $icon, 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any maskable'],
+            ],
+        ], 200, ['Content-Type' => 'application/manifest+json']);
+    }
+
     /** Page publique des conditions de location. */
     public function terms()
     {

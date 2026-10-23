@@ -24,6 +24,14 @@
     <meta name="twitter:card" content="summary_large_image">
     @if($faviconUrl)<link rel="icon" href="{{ $faviconUrl }}">@endif
 
+    {{-- PWA : app installable --}}
+    <link rel="manifest" href="{{ route('public.manifest') }}">
+    <meta name="theme-color" content="{{ $agency->colorPrimary() }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="{{ $agency->name }}">
+    @if($faviconUrl)<link rel="apple-touch-icon" href="{{ $faviconUrl }}">@endif
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -130,6 +138,11 @@
         </div>
     @endif
 
+    {{-- Bouton d'installation PWA (apparaît si installable) --}}
+    <button id="pwa-install" style="display:none" class="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-brand-primary px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-brand-primary-dark">
+        <span>📲</span> Installer l'app
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
     <script>
@@ -140,6 +153,26 @@
                 try { navigator.sendBeacon(@js(route('public.track')), new Blob([JSON.stringify({ type: 'whatsapp', label: location.pathname })], { type: 'application/json' })); } catch (_) {}
             }
         });
+
+        // PWA : service worker + invite d'installation
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+        }
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('pwa-install');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn && !localStorage.getItem('pwa_dismissed')) installBtn.style.display = 'flex';
+        });
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                installBtn.style.display = 'none';
+                if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+                localStorage.setItem('pwa_dismissed', '1');
+            });
+        }
+        window.addEventListener('appinstalled', () => { if (installBtn) installBtn.style.display = 'none'; });
     </script>
     @stack('scripts')
 </body>
