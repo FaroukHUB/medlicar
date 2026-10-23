@@ -232,10 +232,28 @@ class BookingResource extends Resource
                 Tables\Filters\SelectFilter::make('status')->label('Statut')->options(self::STATUSES),
             ])
             ->actions([
-                Tables\Actions\Action::make('contrat')->label('Contrat')->icon('heroicon-m-document-arrow-down')
-                    ->color('gray')->openUrlInNewTab()
-                    ->url(fn (Booking $record) => route('contract.preview', $record)),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('contrat')->label('Voir le contrat')->icon('heroicon-m-document-arrow-down')
+                        ->openUrlInNewTab()->url(fn (Booking $record) => route('contract.preview', $record)),
+                    Tables\Actions\Action::make('email_contrat')->label('Envoyer par email')->icon('heroicon-m-envelope')
+                        ->visible(fn (Booking $record) => (bool) $record->customer?->email)
+                        ->requiresConfirmation()->modalDescription('Envoyer le contrat PDF au client par email ?')
+                        ->action(function (Booking $record) {
+                            try {
+                                \Illuminate\Support\Facades\Mail::to($record->customer->email)
+                                    ->send(new \App\Mail\ContractMail($record, \App\Models\Agency::current()));
+                                \Filament\Notifications\Notification::make()->title('Contrat envoyé par email')->success()->send();
+                            } catch (\Throwable $e) {
+                                \Filament\Notifications\Notification::make()->title('Échec de l\'envoi')->body($e->getMessage())->danger()->send();
+                            }
+                        }),
+                    Tables\Actions\Action::make('whatsapp_contrat')->label('Envoyer par WhatsApp')->icon('heroicon-m-chat-bubble-left-right')
+                        ->color('success')->openUrlInNewTab()
+                        ->visible(fn (Booking $record) => (bool) $record->customer?->phone && (bool) $record->client_token)
+                        ->url(fn (Booking $record) => 'https://wa.me/' . preg_replace('/\D/', '', $record->customer->phone)
+                            . '?text=' . urlencode('Bonjour, voici votre contrat de location ' . $record->reference . ' : ' . route('contract.token', $record->client_token))),
+                    Tables\Actions\EditAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),

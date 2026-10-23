@@ -20,6 +20,14 @@ class ContractController extends Controller
         return $this->pdf($booking)->stream('contrat-' . $booking->reference . '.pdf');
     }
 
+    /** Téléchargement public par lien sécurisé (token) — pour partage au client. */
+    public function downloadByToken(string $token)
+    {
+        $booking = Booking::where('client_token', $token)->firstOrFail();
+
+        return $this->pdf($booking)->download('contrat-' . $booking->reference . '.pdf');
+    }
+
     private function pdf(Booking $booking)
     {
         $booking->loadMissing(['customer', 'vehicle.category']);

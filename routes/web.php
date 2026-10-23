@@ -35,3 +35,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/contrat/{booking}/telecharger', [ContractController::class, 'download'])->name('contract.download');
     Route::get('/contrat/{booking}/apercu', [ContractController::class, 'stream'])->name('contract.preview');
 });
+
+// Téléchargement public du contrat par lien sécurisé (partage au client)
+Route::get('/contrat/t/{token}', [ContractController::class, 'downloadByToken'])->name('contract.token');

@@ -14,6 +14,7 @@ class CreateBooking extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['created_by'] = Auth::id();
+        $data['client_token'] = $data['client_token'] ?? \Illuminate\Support\Str::random(48);
         $data['amount_remaining'] = max(0, (float) ($data['total_price'] ?? 0) - (float) ($data['advance_amount'] ?? 0));
 
         // Délai d'expiration de l'acompte (timer configurable)
